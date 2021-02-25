@@ -49,4 +49,4 @@ workflows:
             - test-docs-build
           filters:
             branches:
-              only: main
+              only: master
