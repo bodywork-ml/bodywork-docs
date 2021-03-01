@@ -5,6 +5,8 @@ To accelerate the development of your projects, we maintain a set of Bodywork de
 * [x] [batch scoring data](https://github.com/bodywork-ml/bodywork-batch-job-project)
 * [x] [deploying a model-scoring microservice with REST API](https://github.com/bodywork-ml/bodywork-serve-model-project)
 * [x] [scheduling a train-and-serve pipeline](https://github.com/bodywork-ml/bodywork-ml-pipeline-project)
+* [x] [building pipelines with Jupyter notebooks](https://github.com/bodywork-ml/bodywork-jupyter-pipeline-project)
+* [x] [serving machine learning dashboards](https://github.com/bodywork-ml/bodywork-ml-dashboard-project)
 
 ## Working with GitHub Template Repositories
 
