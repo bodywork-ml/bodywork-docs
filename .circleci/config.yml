@@ -34,10 +34,10 @@ jobs:
       - checkout
       - run:
           name: Tag Git repo.
-          command: git tag $(cat VERSION)
+          command: git tag $(cat VERSION) -f
       - run:
           name: Git push tag.
-          command: git push origin $(cat VERSION)
+          command: git push origin $(cat VERSION) -f
 
 workflows:
   version: 2
