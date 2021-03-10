@@ -43,6 +43,43 @@ Clones the chosen branch of a Git repository containing a Bodywork ML project an
 !!! warning ""
     This command is intended for use by Bodywork containers and it is not recommended for use during Bodywork project development on your local machine.
 
+## Manage Deployments
+
+Remote workflow execution, managed by workflow-controllers that Bodywork starts automatically on your k8s cluster.
+
+### Get Deployments
+
+```shell
+$ bodywork deployment display \
+    --namespace=YOUR_NAMESPACE \
+    --name=DEPLOYMENT_NAME
+```
+
+Will list all active deployments within `YOUR_NAMESPACE`.
+
+### Create Deployments
+
+```shell
+$ bodywork deployment create \
+    --namespace=YOUR_NAMESPACE \
+    --name=DEPLOYMENT_NAME \
+    --git-repo-url=REMOTE_GIT_REPO_URL \
+    --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
+    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE
+```
+
+Will immediately start a job to deploy your project.
+
+### Get Deployment Workflow Logs
+
+```shell
+$ bodywork deployment logs \
+    --namespace=YOUR_NAMESPACE \
+    --name=DEPLOYMENT_NAME
+```
+
+Stream the workflow logs from the workflow execution job, to your terminal's standard output stream.
+
 ## Manage Secrets
 
 Secrets are used to pass credentials to containers running workflow stages that require authentication with 3rd party services (e.g. cloud storage providers). See [Managing Credentials and Other Secrets](user_guide.md#managing-credentials-and-other-secrets) and [Injecting Secrets into Stage Containers](user_guide.md#injecting-secrets-into-stage-containers) for more information.
