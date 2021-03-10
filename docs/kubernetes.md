@@ -1,10 +1,10 @@
 # Setting-up Kubernetes
 
-If you already have access to a Kubernetes (Kubernetes) cluster, then skip to [Configuring Ingress](#configuring-ingress) - you are almost ready-to-go. If not, then please read on.
+If you already have access to a Kubernetes cluster, then skip to [Configuring Ingress](#configuring-ingress) - you are almost ready-to-go. If not, then please read on.
 
 ## Deploying Locally
 
-If you are new to Kubernetes or want to test deployments locally, then we recommend that you start by installing [Minikube](https://minikube.sigs.Kubernetes.io/docs/). Minikube will enable you with everything that you need to use Bodywork, it is well documented and supported by a large community.
+If you are new to Kubernetes or want to test deployments locally, then we recommend that you start by installing [Minikube](https://minikube.sigs.Kubernetes.io/docs/). Minikube will enable you with everything you need to use Bodywork, it is well documented and supported by a large community.
 
 ## Managed Kubernetes Services
 
@@ -22,11 +22,13 @@ Bodywork relies on the official [Kubernetes Python client](https://github.com/ku
 
 ## Installing the kubectl Tool
 
-Kubectl is the command-line tool that lets you control your Kubernetes cluster - see [here](https://kubernetes.io/docs/reference/kubectl/overview/) for an overview. Bodywork does **not** use kubectl (it talks to the Kubernetes API directly), and it is **not** a requirement. Regardless, kubectl is an essential tool to have access to, so we strongly recommend that you install it - see [here](https://kubernetes.io/docs/tasks/tools/) for instructions.
+Kubectl is the command-line tool that lets you control your Kubernetes cluster - see [here](https://kubernetes.io/docs/reference/kubectl/overview/) for an overview. Bodywork does **not** use kubectl (it talks directly to the Kubernetes API instead), and so it is **not** a requirement. Regardless, kubectl is an essential tool to have access to, so we strongly recommend that you install it - see [here](https://kubernetes.io/docs/tasks/tools/) for instructions.
 
 ## Configuring Ingress
 
-If you want to expose Bodywork-deployed services to the public internet, then you need to install the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/) in your Kubernetes cluster. This can be achieved with a single command - e.g., for local a Minikube cluster you would use,
+If you want to expose Bodywork-deployed services to requests from outside your cluster, then you need to install the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/) within your cluster. This will act like an [API Gateway](https://www.nginx.com/learn/api-gateway/) for your cluster, that will route external HTTP requests to internal services.
+
+The NGINX Ingress controller is an official Kubernetes project and can be installed with a single command - for local a Minikube cluster you would use,
 
 ```shell
 $ minikube addons enable ingress
@@ -39,6 +41,18 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/cont
 ```
 
 The precise details for every potential Kubernetes deployment option are listed [here](https://kubernetes.github.io/ingress-nginx/deploy/#minikube).
+
+Managed Kubernetes services will also provision an external [load balancer](https://en.wikipedia.org/wiki/Load_balancing_(computing)) to manage the flow of traffic to the ingress controller (and hence the cluster). Note, this will have an associated cost that is additional to that of the Kubernetes cluster.
+
+### Connecting to the Cluster
+
+Get the public-facing IP address for your ingress controller with the following command,
+
+```shell
+kubectl -n ingress-nginx get service ingress-nginx-controller
+```
+
+And make a note of the `EXTERNAL-IP` field, that will have to be used for all requests to Bodywork-deployed services originating from outside the cluster. Services within the cluster can communicate with one another using the cluster's internal network.
 
 ## Learning Kubernetes
 
