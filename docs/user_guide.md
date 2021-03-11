@@ -168,7 +168,7 @@ Where:
 : The port to expose on the container - e.g. Flask-based services usually send and receive HTTP requests on port `5000`.
 
 `INGRESS`
-: Create a route (or path) from the cluster's externally-facing ingress controller, to this service? If set to `True`, it will enable external requests to reach the service via the ingress controller (acting as an API gateway), with the following URL,
+: Whether or not to create a route (or path) from the cluster's externally-facing ingress controller, to this service. If set to `True`, it will enable external requests to reach the service via the ingress controller (acting as an API gateway), with the following URL,
 
 : `http://YOUR_CLUSTERS_EXTERNAL_IP/NAMESPACE/SERVICE_STAGE_NAME`
 
@@ -256,7 +256,7 @@ https://github.com/my-github-username/my-classification-product
 
 ## Testing Workflows Locally
 
-Workflows can be triggered locally from the command line, with the workflow-controller logs streamed to your terminal. In this mode of operation, the workflow controller is operating on your local machine, but it is still orchestrating containers on Kubernetes remotely. It will still clone your project from the specified branch of the Bodywork project's Git repository, and delete it when finished.
+Workflows can be triggered locally from the command line, with the workflow-controller logs streamed to your terminal. In this mode of operation, the workflow-controller is operating on your local machine, but it is still orchestrating containers on Kubernetes remotely. It will still clone your project from the specified branch of the Bodywork project's Git repository, and delete it when finished.
 
 For the example project used throughout this user guide, the CLI command for triggering the workflow locally using the `master` branch of the remote Git repository, would be as follows,
 
@@ -278,7 +278,31 @@ $ bodywork workflow \
 
 ### Testing Service Deployments
 
-Service deployments are accessible via HTTP from within the cluster. The simplest way to test a service from your local machine, is by using a local [proxy server](https://kubernetes.io/docs/tasks/extend-kubernetes/http-proxy-access-api/) to enable access to your cluster. This can be achieved by issuing the following command,
+A brief summary of all service-related information can be retrieved by issuing,
+
+```shell
+$ bodywork service display \
+    --namespace=my-classification-product
+```
+
+Which will yield output like,
+
+```text
+-------------------------------------------------
+my-classification-product--model-scoring-service:
+-------------------------------------------------
+|- GIT_URL               https://github.com/my-github-username/my-classification-product
+|- GIT_BRANCH            master
+|- REPLICAS_AVAILABLE    1
+|- REPLICAS_UNAVAILABLE  0
+|- EXPOSED_AS_SERVICE    true
+|- CLUSTER_SERVICE_URL   http://my-classification-product--model-scoring-service.my-classification-product.svc.cluster.local
+|- CLUSTER_SERVICE_PORT  5000
+|- INGRESS_CREATED       true
+|- INGRESS_ROUTE         /my-classification-product/my-classification-product--model-scoring-service
+```
+
+Service deployments are accessible via HTTP from within the cluster - they cannot be exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local [proxy server](https://kubernetes.io/docs/tasks/extend-kubernetes/http-proxy-access-api/) to enable access to your cluster. This can be achieved by issuing the following command,
 
 ```shell
 $ kubectl proxy
@@ -295,7 +319,7 @@ $ curl http://localhost:8001/api/v1/namespaces/my-classification-product/service
 
 Should return the payload according to how you've defined your service in the executable Python module - e.g. in the `model_scoring_app.py` file found within the `model-scoring-service` stage's directory.
 
-Services are not automatically exposed to the public internet, unless the cluster has been [configured](kubernetes.md##configuring-ingress) with an ingress controller, and the `INGRESS` [configuration parameter](#service-deployment-stages) has been set to `True` in the service stage's `config.ini` file. If ingress is operational, then the service can be tested via the public internet using,
+If you have installed an ingress controller in your cluster, and if the the `INGRESS` [configuration parameter](#service-deployment-stages) has been set to `True` in the service stage's `config.ini` file, then the service can be tested via the public internet using,
 
 ```shell
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/my-classification-product/my-classification-product--model-scoring-service/ \
@@ -304,7 +328,7 @@ $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/my-classification-product/my-classificat
     --data '{"x": 5.1, "y": 3.5}'
 ```
 
-See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to locate `YOUR_CLUSTERS_EXTERNAL_IP`.
+See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP`.
 
 ### Deleting Service Deployments
 
@@ -315,14 +339,7 @@ $ bodywork service display \
     --namespace=my-classification-project
 ```
 
-Which should yield output similar to,
-
-```text
-SERVICE_URL                                                       EXPOSED   AVAILABLE_REPLICAS       UNAVAILABLE_REPLICAS
-http://my-classification-product--model-scoring-service:5000      true      2                        0
-```
-
-To delete the service deployment use,
+Then to delete a service deployment use,
 
 ```shell
 $ bodywork service delete
@@ -367,7 +384,7 @@ The aim of this log structure is to provide a useful way of debugging workflows 
 
 ## Deploying Workflows
 
-Deployments can be triggered remotely using,
+Workflows can be executed remotely using,
 
 ```shell
 $ bodywork deployment create \
@@ -382,15 +399,14 @@ You can check on the status of the deployment using,
 
 ```shell
 $ bodywork deployment display \
-    --namespace=my-classification-product \
-    --name=initial-deployment
+    --namespace=my-classification-product
 ```
 
 Which will yield output like,
 
 ```text
 JOB_NAME              START_TIME                    COMPLETION_TIME               ACTIVE      SUCCEEDED       FAILED
-initial deployment    2020-12-11 20:21:04+00:00     2020-12-11 20:23:12+00:00     0           1               0
+initial-deployment    2020-12-11 20:21:04+00:00     2020-12-11 20:23:12+00:00     0           1               0
 ```
 
 And retrieve the logs using,
@@ -454,4 +470,4 @@ $ bodywork cronjob logs \
     --name=my-classification-product-1605214260
 ```
 
-Would stream logs directly to your terminal, from the workflow execution attempt labelled `my-classification-product-1605214260`, in precisely the same way as was described for the `bodywork deployment logs` command [above](#deploying-workflows).
+Would stream logs directly to your terminal, from the workflow execution attempt labelled `my-classification-product-1605214260`, in precisely the same way as was described for the `bodywork deployment logs` command [described above](#deploying-workflows).

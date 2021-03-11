@@ -108,9 +108,10 @@ MEMORY_REQUEST_MB=100
 MAX_STARTUP_TIME_SECONDS=30
 REPLICAS=2
 PORT=5000
+INGRESS=True
 ```
 
-From which it is clear to see that we have specified that this stage is a service (deployment) stage (as opposed to a batch stage), that `service.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the k8s cluster, how long to wait for the service to start-up and be 'ready', which port to expose and how many instances (or replicas) of the server should be created to stand-behind the cluster-service.
+From which it is clear to see that we have specified that this stage is a service (deployment) stage (as opposed to a batch stage), that `service.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait for the service to start-up and be 'ready', which port to expose, to create a path to the service from an externally-facing ingress controller (if present in the cluster), and how many instances (or replicas) of the server should be created to stand-behind the cluster-service.
 
 ## Configuring the Workflow
 
@@ -156,7 +157,7 @@ $ bodywork workflow \
     master
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `scoring-service` namespace. The logs from the workflow-controller and the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all k8s resources created by the workflow-controller in the `scoring-service` namespace, by using the kubectl CLI tool - e.g.,
+Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `scoring-service` namespace. The logs from the workflow-controller and the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `scoring-service` namespace, by using the kubectl CLI tool - e.g.,
 
 ```shell
 $ kubectl -n scoring-service get all
@@ -164,7 +165,7 @@ $ kubectl -n scoring-service get all
 
 ## Testing the API
 
-Service deployments are accessible via HTTP from within the cluster - they are not exposed to the public internet. To test a service from your local machine you will first of all need to start a proxy server to enable access to your cluster. This can be achieved by issuing the following command,
+Service deployments are accessible via HTTP from within the cluster - they are not exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local proxy server to enable access to your cluster. This can be achieved by issuing the following command,
 
 ```shell
 $ kubectl proxy
@@ -190,6 +191,17 @@ Should return,
 ```
 
 According to how the payload has been defined in the `scoring-service/serve.py` module.
+
+If an ingress controller is operational in your cluster, then the service can be tested via the public internet using,
+
+```shell
+$ curl http://YOUR_CLUSTERS_EXTERNAL_IP/scoring-service/bodywork-serve-model-project--scoring-service/iris/v1/score \
+    --request POST \
+    --header "Content-Type: application/json" \
+    --data '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
+```
+
+See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP`.
 
 ## Cleaning Up
 
