@@ -59,7 +59,7 @@ These files will be discussed in more detail later on, but briefly:
 : 3rd party Python package requirements for each individual stage.
 
 `config.ini`
-: Stage configuration data, such as the type of stage (batch or serving), secret credentials that need to be retrieved from k8s, etc.
+: Stage configuration data, such as the type of stage (batch or serving), secret credentials that need to be retrieved from Kubernetes, etc.
 
 `bodywork.ini`
 : Workflow configuration data, such as the DAG definition used to assign stages to steps and the order in which the steps will be executed.

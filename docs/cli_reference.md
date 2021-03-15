@@ -1,6 +1,6 @@
 # CLI Reference
 
-Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your k8s cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects packaged as Git repositories (e.g. on GitHub). This page is a reference for all Bodywork CLI commands.
+Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your Kubernetes cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects packaged as Git repositories (e.g. on GitHub). This page is a reference for all Bodywork CLI commands.
 
 ## Get Version
 
@@ -16,7 +16,7 @@ Prints the Bodywork package version to stdout.
 $ bodywork setup-namespace YOUR_NAMESPACE
 ```
 
-Create and prepare a k8s namespace for running Bodywork workflows - see [Preparing a Namespace for use with Bodywork](user_guide/#preparing-a-namespace-for-use-with-bodywork) for more information. This command will also work with namespaces created by other means - e.g. `kubectl create ns YOUR_NAMESPACE` - where it will not seek to recreate the existing namespace, only to ensure that it is correctly configured.
+Create and prepare a Kubernetes namespace for running Bodywork workflows - see [Preparing a Namespace for use with Bodywork](user_guide/#preparing-a-namespace-for-use-with-bodywork) for more information. This command will also work with namespaces created by other means - e.g. `kubectl create ns YOUR_NAMESPACE` - where it will not seek to recreate the existing namespace, only to ensure that it is correctly configured.
 
 ## Run Workflow
 
@@ -42,6 +42,42 @@ Clones the chosen branch of a Git repository containing a Bodywork ML project an
 
 !!! warning ""
     This command is intended for use by Bodywork containers and it is not recommended for use during Bodywork project development on your local machine.
+
+## Manage Deployments
+
+A deployment is defined as a workflow-controller running as a job within the cluster (as opposed to a workflow-controller running locally). The workflow-controller deploys projects by executing the workflow defined in the project's DAG.
+
+### Get Deployments
+
+```shell
+$ bodywork deployment display \
+    --namespace=YOUR_NAMESPACE
+```
+
+Will list all workflow-controller jobs that have run within `YOUR_NAMESPACE`, whether or not they have been successful. All workflow-controller jobs are deleted after they have been in a completed state for 15 minutes.
+
+### Create Deployments
+
+```shell
+$ bodywork deployment create \
+    --namespace=YOUR_NAMESPACE \
+    --name=DEPLOYMENT_NAME \
+    --git-repo-url=REMOTE_GIT_REPO_URL \
+    --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
+    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE
+```
+
+Will immediately deploy your project by starting a workflow-controller job in your cluster.
+
+### Get Deployment Workflow Logs
+
+```shell
+$ bodywork deployment logs \
+    --namespace=YOUR_NAMESPACE \
+    --name=DEPLOYMENT_NAME
+```
+
+Stream the workflow logs from the workflow-controller job, to your terminal's standard output stream.
 
 ## Manage Secrets
 
@@ -106,7 +142,7 @@ Delete an active service deployment - e.g. one that is no longer required for a 
 
 ## Manage Cronjobs
 
-Workflows can be executed on a schedule using Bodywork cronjobs. Scheduled workflows will be managed by workflow-controllers that Bodywork starts automatically on your k8s cluster.
+Workflows can be executed on a schedule using Bodywork cronjobs. Scheduled workflows will be managed by workflow-controller jobs that Bodywork starts automatically on your cluster.
 
 ### Get Cronjobs
 
@@ -126,10 +162,11 @@ $ bodywork cronjob create \
     --schedule=CRON_SCHEDULE \
     --git-repo-url=REMOTE_GIT_REPO_URL \
     --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
-    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE
+    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE \
+    --history-limit=MIN_NUMBER_OF_WORKFLOW_CONTROLLER_JOBS_TO_RETAIN
 ```
 
-Will create a cronjob whose schedule must be a valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the workflow every hour.
+Will create a cronjob whose schedule must be a valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the workflow every hour. Use the `MIN_NUMBER_OF_WORKFLOW_CONTROLLER_JOBS_TO_RETAIN` argument to set the minimum number of historical workflow-controller jobs that are retained, at any given moment in time.
 
 ### Delete Cronjob
 
@@ -139,7 +176,7 @@ $ bodywork cronjob delete \
     --name=CRONJOB_NAME
 ```
 
-Will also delete all historic workflow execution jobs associated with this cronjob.
+Will also delete all historic workflow-controller jobs associated with this cronjob.
 
 ### Get Cronjob History
 
@@ -149,7 +186,7 @@ $ bodywork cronjob history \
     --name=CRONJOB_NAME
 ```
 
-Display all workflow execution jobs that were created by a cronjob.
+Display all workflow-controller jobs that were created by a cronjob.
 
 ### Get Cronjob Workflow Logs
 
@@ -159,7 +196,7 @@ $ bodywork cronjob logs \
     --name=HISTORICAL_CRONJOB_WORKFLOW_EXECUTION_JOB_NAME
 ```
 
-Stream the workflow logs from a historical workflow execution job, to your terminal's standard output stream.
+Stream the workflow logs from a historical workflow-controller job, to your terminal's standard output stream.
 
 ## Debug
 

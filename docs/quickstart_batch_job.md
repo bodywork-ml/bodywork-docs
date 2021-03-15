@@ -33,7 +33,7 @@ root/
 
 ## Configuring the Stage
 
-The `score-data` directory contains the code and configuration required to run the job within a pre-built container on a k8s cluster, as a batch workload. The `score.py` module is a standalone and executable Python module that contains the code required to:
+The `score-data` directory contains the code and configuration required to run the job within a pre-built container on a Kubernetes cluster, as a batch workload. The `score.py` module is a standalone and executable Python module that contains the code required to:
 
 1. download the new dataset from cloud storage (AWS S3);
 2. load the pre-trained model `classification_model.joblib`;
@@ -107,7 +107,7 @@ MAX_COMPLETION_TIME_SECONDS=30
 RETRIES=2
 ```
 
-From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), that `score.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the k8s cluster, how long to wait and how many times to retry, etc.
+From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), that `score.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
 
 ## Configuring the Workflow
 
@@ -153,7 +153,7 @@ $ bodywork workflow \
     master
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `bodywork-batch-jobs` namespace. The logs from the workflow-controller and from the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all k8s resources created by the workflow-controller in the `bodywork-batch-jobs` namespace, by using the kubectl CLI tool - e.g.,
+Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `bodywork-batch-jobs` namespace. The logs from the workflow-controller and from the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `bodywork-batch-jobs` namespace, by using the kubectl CLI tool - e.g.,
 
 ```shell
 $ kubectl -n bodywork-batch-jobs get all
