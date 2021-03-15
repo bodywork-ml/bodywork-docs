@@ -6,7 +6,7 @@ docs_dir: docs
 nav:
   - Overview: index.md
   - Installing Bodywork: installation.md
-  - Setting-Up Kubernetes: kubernetes.md
+  - Setting-up Kubernetes: kubernetes.md
   - Key Concepts: key_concepts.md
   - User Guide: user_guide.md
   - CLI Reference: cli_reference.md
@@ -17,7 +17,7 @@ nav:
     - Serve Model: quickstart_serve_model.md
     - Deploy ML Pipeline: quickstart_ml_pipeline.md
   - Release Notes:
-    - Version 0.3.0: release_notes/v0.3.0.md
+    - Version 1.0.0: release_notes/v0.3.0.md
 theme: 
   name: material
   features:
