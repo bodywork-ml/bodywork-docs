@@ -1,6 +1,6 @@
 # Stages, Steps and Workflows
 
-![workflows](images/stages_steps_workflows.png)
+![deployment workflow](images/stages_steps_workflows.png)
 
 ## Stages
 
@@ -24,19 +24,19 @@ A **workflow** is an ordered collection of one or more steps, that are executed 
 
 ## Example: Batch Job
 
-![batch_job](images/batch_stage.png)
+![batch stage](images/batch_stage.png)
 
 Workflows need not be complex and often all that's required is for a simple batch job to be executed - for example, to score a dataset using a pre-trained model. Bodywork handles this scenario as a workflow consisting of a single batch stage, running within a single step.
 
 ## Example: Deploy Service
 
-![deploy_scoring_service](images/service_stage.png)
+![service stage](images/service_stage.png)
 
 Sometimes models are trained off-line, or on external platforms, and all that's required is to deploy a service that exposes them. Bodywork handles this scenario as a workflow consisting of a single service stage, running within a single step.
 
 ## Example: Train-and-Serve Pipeline
 
-![train_and_serve](images/train_and_serve.png)
+![train-and-serve ML pipeline](images/train_and_serve.png)
 
 Most ML projects can be described by one model-training stage and one service deployment stage. The training stage is executed in the first step and the serving stage in the second. This workflow can be used to automate the process of re-training models as new data becomes available, and to automatically re-deploy the model-scoring service with the newly-trained model.
 
@@ -44,11 +44,11 @@ Most ML projects can be described by one model-training stage and one service de
 
 Bodywork requires projects to be stored and distributed as Git repositories - e.g. hosted on GitHub. It will clone the project repository directly and execute the stages defined within it, according to the workflow DAG. At no point is there any need to build Docker images and push them to a container registry. This simplifies the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline for your project, so that you can focus on the aspects (e.g. tests) that are more relevant to your machine learning task.
 
-![bodywork_diagram](images/ml_pipeline.png)
+![ML pipeline deployment](images/ml_pipeline.png)
 
 Bodywork machine learning projects need to adopt a specific structure. The necessary Python modules and configuration files required for each stage have to be contained within their own directories in your repository. For the train-and-serve scenario, the required directory project structure would be similar to:
 
-![project_structure](images/project_structure.png)
+![Git project structure](images/project_structure.png)
 
 These files will be discussed in more detail later on, but briefly:
 
@@ -66,7 +66,7 @@ These files will be discussed in more detail later on, but briefly:
 
 This project can then be configured to run on a schedule with one command,
 
-![schedule_workflow](images/key_concept_schedule_cli.png)
+![schedule ML deployments](images/key_concept_schedule_cli.png)
 
 !!! info "Working with private Git repositories"
     The example above assumes the GitHub repository is public - for more information on working with private repositories, please see [here](user_guide.md#working-with-private-git-repositories-using-ssh).

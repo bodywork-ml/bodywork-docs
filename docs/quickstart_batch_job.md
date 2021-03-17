@@ -1,6 +1,6 @@
 # Deploying a Batch Job
 
-![batch_job](images/batch_job.png)
+![deploy batch job](images/batch_job.png)
 
 This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to execute the examples, you will need to have setup [access to a Kubernetes cluster](index.md#prerequisites) and [installed bodywork](installation.md) on your local machine.
 
