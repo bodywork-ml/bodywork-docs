@@ -1,6 +1,6 @@
 # Deploying a Model-Scoring Service
 
-![serve_model](images/serve_model.png)
+![serve model](images/serve_model.png)
 
 This tutorial refers to files within a Bodywork project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-serve-model-project). If you want to execute the examples, you will need to have setup [access to a Kubernetes cluster](index.md#prerequisites) and [installed bodywork](installation.md) on your local machine.
 
