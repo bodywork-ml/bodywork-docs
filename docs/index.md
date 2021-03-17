@@ -97,4 +97,4 @@ Before you start exploring what Bodywork can do for you, you will need:
 
 Familiarity with basic [Kubernetes concepts](https://kubernetes.io/docs/concepts/) and some exposure to the [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) command-line tool will make life easier, but are not essential. If you would like to learn a bit more about Kubernetes, then we recommend the first two introductory sections of Marko Lukša's excellent book [Kubernetes in Action](https://www.manning.com/books/kubernetes-in-action?query=kubernetes), or the introductory article we wrote on [Deploying Python ML Models with Flask, Docker and Kubernetes](https://alexioannides.com/2019/01/10/deploying-python-ml-models-with-flask-docker-and-kubernetes/).
 
-If you need help with any of this, then please don't hesitate to [contact us](contact.md) and we'll do our best to get you up-and-running.
+If you need help with any of this, then please don't hesitate to [contact us](contact.md) and we'll do our best to get you up-and-running. Bodywork is brought to you by [Bodywork Machine Learning](https://www.bodyworkml.com).
