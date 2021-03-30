@@ -40,13 +40,13 @@ This process is shown below for a `train-and-serve` pipeline with two stages: tr
 
 ## What will I need to Do?
 
-Divide your project into discrete stages, creating a new directory for each one. Every stage will need an executable Python module for Bodywork to run, a requirements file for installing external Python dependencies, and a simple config file. Bundle these files together with a workflow execution plan, into a Git repository and you're ready to go.
+Divide your project into discrete stages and create an executable Python module for each one. Bundle these files together with a `bodywork.yaml` configuration file, into a Git repository and you're ready to go.
 
 <div align="center">
 <img src="images/project_structure_map.png"/ alt="Git project structure">
 </div>
 
-You do **not** need to tie yourself to new APIs - package your existing codebase into this framework and watch as Bodywork pulls each stage into its own container and deploys to Kubernetes.
+You do **not** need to tie yourself to new APIs - just add `bodywork.yaml` to your existing codebase and watch as Bodywork pulls each stage into its own container and deploys to Kubernetes.
 
 ## CI/CD for Machine Learning
 
