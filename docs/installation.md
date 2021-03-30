@@ -29,4 +29,4 @@ Deploy machine learning projects developed in Python, to k8s.
 
 ## Required Python Version
 
-Bodywork has been built and tested using Python 3.7. We recommend that Bodywork-compatible ML projects should also be developed and tested using Python 3.7, but in-practice your code is likely to work with other versions.
+Bodywork has been built and tested using Python 3.8. We recommend that Bodywork-compatible ML projects should also be developed and tested using Python 3.8, but in-practice your code is likely to work with other versions.
