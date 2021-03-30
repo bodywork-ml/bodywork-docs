@@ -23,17 +23,40 @@ The Bodywork project for this single-stage workflow is packaged as a [GitHub rep
 
 ```text
 root/
- |-- score-data/
+ |-- score_data/
      |-- score.py
-     |-- requirements.txt
-     |-- config.ini
      |-- classification_model.joblib
- |-- bodywork.ini
+ |-- bodywork.yaml
 ```
 
-## Configuring the Stage
+## Configuring the Job
 
-The `score-data` directory contains the code and configuration required to run the job within a pre-built container on a Kubernetes cluster, as a batch workload. The `score.py` module is a standalone and executable Python module that contains the code required to:
+All of the configuration for this deployment is held within the `bodywork.yaml` file, whose contents are reproduced below.
+
+```yaml
+version: "1.0"
+project:
+  name: bodywork-batch-job-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: score_data
+stages:
+  score_data:
+    executable_module_path: score_data/score.py
+    requirements:
+      - boto3==1.16.15
+      - joblib==0.17.0
+      - pandas==1.1.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.5
+    memory_request_mb: 100
+    batch:
+      max_completion_time_seconds: 30
+      retries: 2
+logging:
+  log_level: INFO
+```
+
+The `stages.score_data.executable_module_path` parameter points to the executable Python module - `score.py` - that defines what will happen when it is executed within a pre-built container on Kubernetes, as the `score_data` (batch) stage. This module contains the code required to:
 
 1. download the new dataset from cloud storage (AWS S3);
 2. load the pre-trained model `classification_model.joblib`;
@@ -79,7 +102,7 @@ $ python score.py
 
 And so everything defined in `main()` will be executed.
 
-The `requirements.txt` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `score.py` script. In this example we have,
+The ``stages.score_data.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `score.py` script. In this example we have,
 
 ```text
 boto3==1.16.15
@@ -93,39 +116,38 @@ scikit-learn==0.23.2
 * `pandas` - for manipulating the raw data; and,
 * `scikit-learn` - for training the model.
 
-Finally, the `config.ini` file allows us to configure the key parameters for the stage,
+Finally, the remaining parameters in `stages.score_data` section of the `bodywork.yaml` file allow us to configure the remaining key parameters for the stage,
 
-```ini
-[default]
-STAGE_TYPE="batch"
-EXECUTABLE_SCRIPT="score.py"
-CPU_REQUEST=0.5
-MEMORY_REQUEST_MB=100
-
-[batch]
-MAX_COMPLETION_TIME_SECONDS=30
-RETRIES=2
+```yaml
+stages:
+  score_data:
+    executable_module_path: score_data/score.py
+    requirements:
+      - boto3==1.16.15
+      - joblib==0.17.0
+      - pandas==1.1.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.5
+    memory_request_mb: 100
+    batch:
+      max_completion_time_seconds: 30
+      retries: 2
 ```
 
-From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), that `score.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
+From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
 
 ## Configuring the Workflow
 
-The `bodywork.ini` file in the root of this repository contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `score-data` directory.
+The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `score_data` directory.
 
-```ini
-[default]
-PROJECT_NAME="bodywork-batch-job-project"
-DOCKER_IMAGE="bodyworkml/bodywork-core:latest"
-
-[workflow]
-DAG=score-data
-
-[logging]
-LOG_LEVEL="INFO"
+```yaml
+project:
+  name: bodywork-batch-job-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: score_data
 ```
 
-The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to run the `score-data` stage.
+The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to run the `score_data` stage.
 
 ## Testing the Workflow
 
