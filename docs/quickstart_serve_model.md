@@ -25,19 +25,44 @@ The Bodywork project for this single-stage workflow is packaged as a [GitHub rep
 root/
  |-- scoring-service/
      |-- service.py
-     |-- requirements.txt
-     |-- config.ini
      |-- classification_model.joblib
  |-- bodywork.ini
 ```
 
 We have included the pre-trained model as part of the Bodywork project, for convenience (not as best practice).
 
-## Configuring the Stage
+## Configuring the Service
 
-The `scoring-service` directory contains the code and configuration required to load a pre-trained model and use it to score a single instance (or row) of data, sent as JSON to a REST API endpoint. We have chosen to use the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework with which to engineer our REST API server application. The use of Flask is **not** a requirement in any way and you are free to use different frameworks - e.g. [FastAPI](https://fastapi.tiangolo.com).
+All of the configuration for this deployment is held within the `bodywork.yaml` file, whose contents are reproduced below.
 
-Within this stage's directory, `service.py` defines the REST API server containing our ML scoring endpoint. It can be summarised as,
+```yaml
+version: "1.0"
+project:
+  name: bodywork-serve-model-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: scoring_service
+stages:
+  scoring_service:
+    executable_module_path: scoring_service/service.py
+    requirements:
+      - Flask==1.1.2
+      - joblib==0.17.0
+      - numpy==1.19.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.5
+    memory_request_mb: 100
+    service:
+      max_startup_time_seconds: 30
+      replicas: 2
+      port: 5000
+      ingress: true
+logging:
+  log_level: INFO
+```
+
+The `stages.scoring_service.executable_module_path` parameter points to the executable Python module - `service.py` - defining a service that will be started when it is executed within a pre-built container on Kubernetes, as the `scoring_service` (service) stage.
+
+This module contains the code required to load the pre-trained model and then start a service to score instances (or rows) of data, sent as JSON to a REST API endpoint. We have chosen to use the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework with which to engineer our REST API server application. The use of Flask is **not** a requirement in any way and you are free to use different frameworks - e.g. [FastAPI](https://fastapi.tiangolo.com). The contents of `service.py` can be summarised as follows,
 
 ```python
 from typing import Dict
@@ -82,7 +107,7 @@ $ python service.py
 
 And so it will start the server defined by `app` and expose the `/iris/v1/score` route that is being handled by `score()`. Note, that this process has no scheduled end and the stage will be kept up-and-running until it is re-deployed or [deleted](user_guide.md#deleting-redundant-service-deployments).
 
-The `requirements.txt` file lists the 3rd party Python packages that will be Pip-installed on the Bodywork container, as required to run `service.py`. In this example we have,
+The `stages.scoring_service.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `service.py` module. In this example we have,
 
 ```text
 Flask==1.1.2
@@ -95,41 +120,40 @@ scikit-learn==0.23.2
 * `joblib` - for loading the persisted model;
 * `numpy` & `scikit-learn` - for working with the ML model.
 
-The `config.ini` file for this stage is,
+Finally, the remaining parameters in `stages.scoring_service` section of the `bodywork.yaml` file allow us to configure the remaining key parameters for the stage,
 
-```ini
-[default]
-STAGE_TYPE="service"
-EXECUTABLE_SCRIPT="service.py"
-CPU_REQUEST=0.25
-MEMORY_REQUEST_MB=100
-
-[service]
-MAX_STARTUP_TIME_SECONDS=30
-REPLICAS=2
-PORT=5000
-INGRESS=True
+```yaml
+stages:
+  scoring_service:
+    executable_module_path: scoring_service/service.py
+    requirements:
+      - Flask==1.1.2
+      - joblib==0.17.0
+      - numpy==1.19.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.5
+    memory_request_mb: 100
+    service:
+      max_startup_time_seconds: 30
+      replicas: 2
+      port: 5000
+      ingress: true
 ```
 
-From which it is clear to see that we have specified that this stage is a service (deployment) stage (as opposed to a batch stage), that `service.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait for the service to start-up and be 'ready', which port to expose, to create a path to the service from an externally-facing ingress controller (if present in the cluster), and how many instances (or replicas) of the server should be created to stand-behind the cluster-service.
+From which it is clear to see that we have specified that this stage is a service (deployment) stage (as opposed to a batch stage), together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait for the service to start-up and be 'ready', which port to expose, to create a path to the service from an externally-facing ingress controller (if present in the cluster), and how many instances (or replicas) of the server should be created to stand-behind the cluster-service.
 
 ## Configuring the Workflow
 
-The `bodywork.ini` file in the root of this repository contains the configuration for the whole workflow, which in this case consists of a single stage - `scoring-service`.
+The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
 
-```ini
-[default]
-PROJECT_NAME="bodywork-serve-model-project"
-DOCKER_IMAGE="bodyworkml/bodywork-core:latest"
-
-[workflow]
-DAG=scoring-service
-
-[logging]
-LOG_LEVEL="INFO"
+```yaml
+project:
+  name: bodywork-serve-model-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: score_data
 ```
 
-The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to run the `scoring-service` stage.
+The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to run the `scoring_service` stage.
 
 ## Testing the Deployment
 

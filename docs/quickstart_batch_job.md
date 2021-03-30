@@ -102,7 +102,7 @@ $ python score.py
 
 And so everything defined in `main()` will be executed.
 
-The ``stages.score_data.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `score.py` script. In this example we have,
+The `stages.score_data.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `score.py` module. In this example we have,
 
 ```text
 boto3==1.16.15
@@ -134,11 +134,11 @@ stages:
       retries: 2
 ```
 
-From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
+From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
 
 ## Configuring the Workflow
 
-The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `score_data` directory.
+The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
 
 ```yaml
 project:
