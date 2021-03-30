@@ -10,6 +10,16 @@ $ bodywork --version
 
 Prints the Bodywork package version to stdout.
 
+## Validate Configuration File
+
+The `bodywork.yaml` file can be checked for errors by issuing the following command from the CLI,
+
+```shell
+$ bodywork validate --check-files
+```
+
+The optional `--check-files` flag will check if all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located. This command assumes that `bodywork.yaml` is in the current working directory - if this is not the case, use the `--file` option to specify the path of `bodywork.yaml`. Validation errors are printed to stdout.
+
 ## Configure Namespace
 
 ```shell
@@ -38,7 +48,7 @@ $ bodywork stage \
     STAGE_NAME
 ```
 
-Clones the chosen branch of a Git repository containing a Bodywork ML project and then executes the named stage. This is equivalent to installing all the 3rd party Python package requirements specified in the stage's `requirement.txt` file, and then executing `python NAME_OF_EXECUTABLE_PYTHON_MODULE.py` as defined in the stage's `config.ini`. See [Configuring Stages](user_guide.md#configuring-stages) for more information. The Bodywork stage-runner will be started wherever the command is called.
+Clones the chosen branch of a Git repository containing a Bodywork ML project and then executes the named stage. This is equivalent to installing all the 3rd party Python package requirements specified in the stage's `requirement.txt` file, and then executing `python NAME_OF_EXECUTABLE_PYTHON_MODULE.py` as defined for the stage in `bodywork.yaml`. See [Configuring Stages](user_guide.md#configuring-stages) for more information. The Bodywork stage-runner will be started wherever the command is called.
 
 !!! warning ""
     This command is intended for use by Bodywork containers and it is not recommended for use during Bodywork project development on your local machine.

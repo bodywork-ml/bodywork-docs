@@ -295,7 +295,7 @@ The `bodywork.yaml` file can be checked for errors by issuing the following comm
 $ bodywork validate --check-files
 ```
 
-The optional `--check-files` flag will ensure that all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located.
+The optional `--check-files` flag will check that all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located (assumed to be current working directory). Validation errors will be reported in the terminal.
 
 ## Configuring Namespaces
 
