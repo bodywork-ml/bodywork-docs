@@ -23,7 +23,7 @@ The Bodywork project for this single-stage workflow is packaged as a [GitHub rep
 
 ```text
 root/
- |-- scoring-service/
+ |-- scoring_service/
      |-- service.py
      |-- classification_model.joblib
  |-- bodywork.ini
@@ -99,7 +99,7 @@ if __name__ == '__master__':
     app.run(host='0.0.0.0', port=5000)
 ```
 
-We recommend that you spend five minutes familiarising yourself with the full contents of [service.py](https://github.com/bodywork-ml/bodywork-serve-model-project/blob/master/scoring-service/service.py). When Bodywork runs the stage, it will do so in the same way as if you were to run,
+We recommend that you spend five minutes familiarising yourself with the full contents of [service.py](https://github.com/bodywork-ml/bodywork-serve-model-project/blob/master/scoring_service/service.py). When Bodywork runs the stage, it will do so in the same way as if you were to run,
 
 ```shell
 $ python service.py
@@ -190,8 +190,7 @@ $ kubectl -n scoring-service get all
 ## Testing the API
 
 Service deployments are accessible via HTTP from within the cluster - they are not exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local proxy server to enable access to your cluster. This can be achieved by issuing the following command,
-
-```shell
+x```shell
 $ kubectl proxy
 ```
 
