@@ -109,7 +109,9 @@ logging:
 
 ![Bodywork ML pipeline](images/ml_pipeline.png)
 
-Bodywork projects must be packaged as a Git repositories (e.g. on GitHub), that will be cloned by Bodywork when executing workflows. When the Bodywork workflow-controller executes a stage, it starts a new [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) in your Kubernetes cluster and instructs it to pull the required directory from your project's Git repository. Then, it installs any 3rd party Python package requirements, before running the executable Python module.
+Bodywork projects must be packaged as Git repositories (e.g. on GitHub). When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and manages the execution of the workflow.
+
+When the workflow-controller executes a stage, it starts a new [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) in your Kubernetes cluster, installs any 3rd party Python package dependencies that might be required, and then runs the chosen Python module.
 
 ## Configuring Workflows
 
@@ -150,7 +152,7 @@ The workflow will be interpreted as follows:
 
 ## Configuring Stages
 
-The behavior of each stage is controlled by the configuration parameters in each stage subsection within the stages section of the `bodywork.yaml` file. For the `model_scoring_service` stage in the example above, we have,
+The behavior of each stage is controlled by the configuration parameters in each stage subsection, within the `stages` section of the `bodywork.yaml` file. For the `model_scoring_service` stage in the example above, we have,
 
 ```yaml
 stages:
@@ -174,23 +176,23 @@ stages:
       ingress: true
 ```
 
-Every stage mush have either a `batch` or `service` sub-section defined, depending on whether the stage is a batch stage or service stage, respectively. If `batch` is selected, then the executable Python module will be run as a discrete job (with a start and an end), and will be managed as a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/). If `service` is selected, then the executable script will be run as part of a [Kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and will expose a [Kubernetes cluster-ip service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to enable access over HTTP, within the cluster.
+Every stage must have either a `batch` or `service` sub-section defined, depending on whether the stage is a batch stage or service stage, respectively. If `batch` is selected, then the executable Python module will be run as a discrete job (with a start and an end), and will be managed as a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/). If `service` is selected, then the executable script will be run as part of a [Kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and will expose a [Kubernetes cluster-ip service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to enable access over HTTP, within the cluster.
 
 Top-level stage configuration parameters are to be used as follows:
 
 `executable_module_path`
-: The path to the executable Python module to run for the stage. Executable means that executing `python model_scoring_app.py` from the CLI would cause the module (or script) to run.
+: The path to the executable Python module to run for the stage. Executable means that executing `python model_scoring_app.py` from the CLI would cause the module to run.
 
 `args`
 : An optional list of arguments to pass to the executable Python module (as strings).
 
 `requirements`
-: An optional list of Python package dependencies that need to be installed into the Python environment for the executable module to run successfully. This is same list that you would normally specify in a `requirements.txt` file.
+: An optional list of Python package dependencies that need to be installed into the Python environment, for the executable module to run successfully. This is same list that you would normally specify in a `requirements.txt` file.
 
 `cpu_request` and `memory_request_mb`
 : The compute resources to request from the cluster in order to run the stage. For more information on the units used in these parameters [refer here](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes).
 
-The `secrets` sub-section is optional and is covered below in more depth [below](#injecting-secrets).
+The `secrets` sub-section is optional and is covered in more depth [below](#injecting-secrets).
 
 ### Batch Stages
 
@@ -234,7 +236,7 @@ Where:
 : Time to wait for the service to be 'ready' without any errors having occurred. When the service reaches the time limit without raising errors, then it will be marked as 'successful'. If a service deployment stage fails to be successful, then the deployment will be automatically rolled-back to the previous version.
 
 `replicas`
-: Number of independent containers running the service started by the stage's Python executable module -  `model_scoring_app.py`. The service endpoint will automatically route requests to each replica at random.
+: Number of independent containers running the service started by the stage's executable Python module -  `model_scoring_app.py`. The service endpoint will automatically route requests to each replica in-turn.
 
 `port`
 : The port to expose on the container - e.g. Flask-based services usually send and receive HTTP requests on port `5000`.
@@ -252,7 +254,7 @@ Credentials will be required whenever you wish to pull data or persist models to
 
 The first step in this process is to store your project's secret credentials, securely within its namespace - see [Managing Credentials and Other Secrets](#managing-secrets) below for instructions on how to achieve this using Bodywork.
 
-The second step is to configure the use of this secret with the `secrets` sub-section of a stage's configuration within the `bodywork.yaml` file. For example,
+The second step is to configure the use of this secret with the `secrets` sub-section of a stage's configuration, within the `bodywork.yaml` file. For example,
 
 ```yaml
 stages:
@@ -285,7 +287,8 @@ logging:
 
 Where:
 
-- `log_level`: must be one of: `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. Manages the types of log message to stream to the workflow-controller's standard output stream (stdout).
+`log_level`
+: Must be one of: `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. This is used to set the types of log message to stream to the workflow-controller's standard output stream (stdout).
 
 ## Validating the `bodywork.yaml` Configuration File
 
@@ -365,15 +368,6 @@ $ bodywork workflow \
     master
 ```
 
-It is also possible to specify a branch from a local Git repository. A local version of the above example - this time using the `dev` branch - could be as follows,
-
-```shell
-$ bodywork workflow \
-    --namespace=my-classification-product \
-    file:///absolute/path/to/my-classification-product \
-    dev
-```
-
 ### Testing Service Deployments
 
 A brief summary of all service-related information can be retrieved by issuing,
@@ -415,9 +409,9 @@ $ curl http://localhost:8001/api/v1/namespaces/my-classification-product/service
     --data '{"x": 5.1, "y": 3.5}'
 ```
 
-Should return the payload according to how you've defined your service in the executable Python module - e.g. in the `model_scoring_app.py` file found within the `model-scoring-service` stage's directory.
+Should return the payload according to how you've defined your service in the executable Python module - e.g. in the `model_scoring_app.py` file.
 
-If you have installed an ingress controller in your cluster, and if the the `INGRESS` [configuration parameter](#service-deployment-stages) has been set to `True` in the service stage's `config.ini` file, then the service can be tested via the public internet using,
+If you have installed an ingress controller in your cluster, and if the the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) has been set to `true`, then the service can be tested via the public internet using,
 
 ```shell
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/my-classification-product/my-classification-product--model-scoring-service/ \
@@ -451,14 +445,6 @@ All logs should start in the same way,
 
 ```text
 2020-11-24 20:04:12,648 - INFO - workflow.run_workflow - attempting to run workflow for project=https://github.com/my-github-username/my-classification-product on branch=master in kubernetes namespace=my-classification-product
-git version 2.24.3 (Apple Git-128)
-Cloning into 'bodywork_project'...
-remote: Enumerating objects: 92, done.
-remote: Counting objects: 100% (92/92), done.
-remote: Compressing objects: 100% (64/64), done.
-remote: Total 92 (delta 49), reused 70 (delta 27), pack-reused 0
-Receiving objects: 100% (92/92), 20.51 KiB | 1.58 MiB/s, done.
-Resolving deltas: 100% (49/49), done.
 2020-11-24 20:04:15,579 - INFO - workflow.run_workflow - attempting to execute DAG step=['prepare-data']
 2020-11-24 20:04:15,580 - INFO - workflow.run_workflow - creating job=my-classification-product--prepare-data in namespace=my-classification-product
 ...
@@ -471,10 +457,6 @@ After a stage completes, you will notice that the logs from within the container
 ---- pod logs for my-classification-product--prepare-data
 ----------------------------------------------------------------------------------------------------
 2020-11-24 20:04:18,917 - INFO - stage.run_stage - attempting to run stage=prepare-data from master branch of repo at https://github.com/my-github-username/my-classification-product
-git version 2.20.1
-Cloning into 'bodywork_project'...
-Collecting boto3==1.16.15
-  Downloading boto3-1.16.15-py2.py3-none-any.whl (129 kB)
 ...
 ```
 
