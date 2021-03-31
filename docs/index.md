@@ -1,7 +1,7 @@
 # Overview
 
 <div align="center">
-<img src="images/bodywork_logo.png"/ alt="Bodywork logo">
+<img src="images/bodywork_logo.png" alt="Bodywork logo">
 </div>
 
 Bodywork deploys machine learning projects developed in Python, to [Kubernetes](https://en.wikipedia.org/wiki/Kubernetes). It helps you:

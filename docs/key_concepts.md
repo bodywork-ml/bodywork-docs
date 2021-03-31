@@ -42,21 +42,27 @@ Most ML projects can be described by one model-training stage and one service de
 
 ## Deployment from Git Repos
 
-Bodywork requires projects to be stored and distributed as Git repositories - e.g. hosted on GitHub. It will clone the project repository directly and execute the stages (the executable Python modules) defined within it, according to how the workflow has been configured. At no point is there any need to build Docker images and push them to a container registry. This simplifies the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline for your project, so that you can focus on the aspects (e.g. tests) that are more relevant to your machine learning task.
+Bodywork requires projects to be stored and distributed as Git repositories - e.g. hosted on GitHub. When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses configuration data provided in a `bodywork.yaml` file and then manages the execution of the workflow, creating new containers for each stage.
+
+At no point is there any need to build Docker images and push them to a container registry. This simplifies the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline for your project, so that you can focus on the aspects (e.g. tests) that are more relevant to your machine learning task.
 
 ![ML pipeline deployment](images/ml_pipeline.png)
 
-Bodywork does not impact how you choose to structure and engineer your projects. The only requirement for deploying a project with Bodywork, is to add a single `bodywork.yaml` file to your project's root directory. This file contains **all** of the configuration data required by Bodywork to deploy your project to Kubernetes. For the train-and-serve scenario discussed above, the project structure could be something like:
+Bodywork does not impact how you choose to structure and engineer your projects. The only requirement for deploying a project with Bodywork, is to add a single `bodywork.yaml` file to your project's root directory. This file contains **all** of the configuration data required by Bodywork to deploy your project to Kubernetes.
 
-![Git project structure](images/project_structure.png)
+For the train-and-serve scenario discussed above, the project structure can be like that for any conventional Python project - for example,
+
+<div align="center">
+<img src="../images/project_structure.png" alt="Git project structure">
+</div>
 
 Where:
 
 `*.py`
-: Executable Python modules that run the code required by their stage.
+: Executable Python modules that contain the code required for a stage.
 
 `bodywork.yaml`
-: Bodywork configuration data - for example, which Python module to use for each stage, external Python packages that need to be installed, arguments to pass to modules, secret credentials, the workflow DAG, etc. These are covered in detail, in the [user guide](user_guide.md)
+: Bodywork configuration data - for example, which Python module to use for each stage, external Python packages that need to be installed, arguments to pass to modules, secret credentials, the workflow DAG, etc. These are covered in detail, in the [user guide](user_guide.md).
 
 This project can then be configured to run on a schedule with one command,
 
