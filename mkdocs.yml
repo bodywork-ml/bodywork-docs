@@ -17,6 +17,7 @@ nav:
     - Serve Model: quickstart_serve_model.md
     - Deploy ML Pipeline: quickstart_ml_pipeline.md
   - Release Notes:
+    - Version 2.0.0: release_notes/v2.0.0.md
     - Version 1.0.0: release_notes/v1.0.0.md
 theme: 
   name: material

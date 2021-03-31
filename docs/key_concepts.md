@@ -8,10 +8,10 @@ Each task you want to run, such as training a model, scoring data or starting a 
 
 There are two different types of stage that can be created:
 
-`Batch Stage`
+`Batch Stages`
 : For executing code that performs a discrete task - e.g. preparing features, training a model or scoring a dataset. Batch stages have a well defined end and will be automatically shut-down after they have successfully completed.
 
-`Service Stage`
+`Service Stages`
 : For executing code that starts a service - e.g. a [Flask](https://flask.palletsprojects.com/en/1.1.x/) application that loads a model and then exposes a REST API for model-scoring. Service stages are long-running processes with no end, that will be kept up-and-running until they are deleted.
 
 ## Steps
@@ -42,27 +42,27 @@ Most ML projects can be described by one model-training stage and one service de
 
 ## Deployment from Git Repos
 
-Bodywork requires projects to be stored and distributed as Git repositories - e.g. hosted on GitHub. It will clone the project repository directly and execute the stages defined within it, according to the workflow DAG. At no point is there any need to build Docker images and push them to a container registry. This simplifies the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline for your project, so that you can focus on the aspects (e.g. tests) that are more relevant to your machine learning task.
+Bodywork requires projects to be stored and distributed as Git repositories - e.g. hosted on GitHub. When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses configuration data provided in a `bodywork.yaml` file and then manages the execution of the workflow, creating new containers for each stage.
+
+At no point is there any need to build Docker images and push them to a container registry. This simplifies the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline for your project, so that you can focus on the aspects (e.g. tests) that are more relevant to your machine learning task.
 
 ![ML pipeline deployment](images/ml_pipeline.png)
 
-Bodywork machine learning projects need to adopt a specific structure. The necessary Python modules and configuration files required for each stage have to be contained within their own directories in your repository. For the train-and-serve scenario, the required directory project structure would be similar to:
+Bodywork does not impact how you choose to structure and engineer your projects. The only requirement for deploying a project with Bodywork, is to add a single `bodywork.yaml` file to your project's root directory. This file contains **all** of the configuration data required by Bodywork to deploy your project to Kubernetes.
 
-![Git project structure](images/project_structure.png)
+For the train-and-serve scenario discussed above, the project structure can be like that for any conventional Python project - for example,
 
-These files will be discussed in more detail later on, but briefly:
+<div align="center">
+<img src="../images/project_structure.png" alt="Git project structure">
+</div>
+
+Where:
 
 `*.py`
-: Executable Python modules that run the code required by their stage.
+: Executable Python modules that contain the code required for a stage.
 
-`requirements.txt`
-: 3rd party Python package requirements for each individual stage.
-
-`config.ini`
-: Stage configuration data, such as the type of stage (batch or serving), secret credentials that need to be retrieved from Kubernetes, etc.
-
-`bodywork.ini`
-: Workflow configuration data, such as the DAG definition used to assign stages to steps and the order in which the steps will be executed.
+`bodywork.yaml`
+: Bodywork configuration data - for example, which Python module to use for each stage, external Python packages that need to be installed, arguments to pass to modules, secret credentials, the workflow DAG, etc. These are covered in detail, in the [user guide](user_guide.md).
 
 This project can then be configured to run on a schedule with one command,
 

@@ -28,26 +28,61 @@ The Jupyter notebook titled [ml_prototype_work.ipynb](https://github.com/bodywor
 
 Now that we have developed a solution to our chosen ML task, how do we get it into production - i.e. how can we split the Jupyter notebook into a 'train-model' stage that persists a trained model to cloud storage, and a separate 'deploy-scoring-service' stage that will load the persisted model and start a web service to expose a model-scoring API?
 
-The Bodywork project for this multi-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-ml-pipeline-project), whose root directory is as follows,
+The Bodywork project for this multi-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-ml-pipeline-project), and is structured as follows,
 
 ```text
 root/
- |-- stage-1-train-model/
+ |-- stage_1_train_model/
      |-- train_model.py
-     |-- requirements.txt
-     |-- config.ini
- |-- stage-2-serve-model/
+ |-- stage_2_serve_model/
      |-- serve_model.py
-     |-- requirements.txt
-     |-- config.ini
- |-- bodywork.ini
+ |-- bodywork.yaml
 ```
 
-The remainder of this tutorial is concerned with explaining what is contained within these directories and their files and how to use Bodywork to to deploy the solution to Kubernetes.
+All of the configuration for this deployment is held within the `bodywork.yaml` file, whose contents are reproduced below.
+
+```yaml
+version: "1.0"
+project:
+  name: bodywork-ml-pipeline-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: stage_1_train_model >> stage_2_scoring_service
+stages:
+  stage_1_train_model:
+    executable_module_path: stage_1_train_model/train_model.py
+    requirements:
+      - boto3==1.16.15
+      - joblib==0.17.0
+      - pandas==1.1.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.5
+    memory_request_mb: 100
+    batch:
+      max_completion_time_seconds: 30
+      retries: 2
+  stage_2_scoring_service:
+    executable_module_path: stage_2_scoring_service/serve_model.py
+    requirements:
+      - Flask==1.1.2
+      - joblib==0.17.0
+      - numpy==1.19.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.25
+    memory_request_mb: 100
+    service:
+      max_startup_time_seconds: 30
+      replicas: 2
+      port: 5000
+      ingress: true
+logging:
+  log_level: INFO
+```
+
+The remainder of this tutorial is concerned with explaining how the configuration within `bodywork.yaml` is used to deploy the pipeline, as defined within the `train_model.py` and `serve_model.py` Python modules.
 
 ## Configuring the Batch Stage
 
-The `stage-1-train-model` directory contains the code and configuration required to train the model within a [pre-built Bodywork container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core), as a batch workload. Using the `ml_prototype_work.ipynb` notebook as a reference, the `train_model.py` module contains the code required to:
+The `stages.stage_1_train_model.executable_module_path` points to the executable Python module - `train_model.py` - that defines what will happen when the `stage_1_train_model` (batch) stage is executed, within a pre-built [Bodywork container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core). This module contains the code required to:
 
 1. download data from an AWS S3 bucket;
 2. pre-process the data (e.g. extract labels for supervised learning);
@@ -86,7 +121,7 @@ if __name__ == '__main__':
     main()
 ```
 
-We recommend that you spend five minutes familiarising yourself with the full contents of [train_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage-1-train-model/train_model.py). When Bodywork runs the stage, it will do so in exactly the same way as if you were to run,
+We recommend that you spend five minutes familiarising yourself with the full contents of [train_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage_1_train_model/train_model.py). When Bodywork runs the stage, it will do so in exactly the same way as if you were to run,
 
 ```shell
 $ python train_model.py
@@ -94,7 +129,7 @@ $ python train_model.py
 
 And so everything defined in `main()` will be executed.
 
-The `requirements.txt` file lists the 3rd party Python packages that will be Pip-installed on the container, as required to run the `train_model.py` script. In this example we have,
+The `stages.stage_1_train_model.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `train_model.py` module. In this example we have,
 
 ```text
 boto3==1.16.15
@@ -108,29 +143,35 @@ scikit-learn==0.23.2
 * `pandas` - for manipulating the raw data; and,
 * `scikit-learn` - for training the model.
 
-Finally, the `config.ini` file allows us to configure the key parameters for the stage,
+Finally, the remaining parameters in `stages.stage_1_train_model` section of the `bodywork.yaml` file allow us to configure the remaining key parameters for the stage,
 
-```ini
-[default]
-STAGE_TYPE="batch"
-EXECUTABLE_SCRIPT="train_model.py"
-CPU_REQUEST=0.5
-MEMORY_REQUEST_MB=100
-
-[batch]
-MAX_COMPLETION_TIME_SECONDS=30
-RETRIES=2
+```yaml
+stage_1_train_model:
+  executable_module_path: stage_1_train_model/train_model.py
+  requirements:
+    - boto3==1.16.15
+    - joblib==0.17.0
+    - pandas==1.1.4
+    - scikit-learn==0.23.2
+  cpu_request: 0.5
+  memory_request_mb: 100
+  batch:
+    max_completion_time_seconds: 30
+    retries: 2
 ```
 
-From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service-deployment), that `train_model.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
+From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service-deployment), together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
 
 ## Configuring the Service Stage
 
-The `stage-2-scoring-service` directory contains the code and configuration required to load the model trained in `stage-1-train-model` and use it to score single instances (or rows) of data, sent to a REST API endpoint in JSON format. The model's score will be used to return the model's prediction as JSON data in the response.
+The `stages.stage_2_scoring_service.executable_module_path` parameter points to the executable Python module - `serve_model.py` - that defines what will happen when the `stage_2_scoring_service` (service) stage is executed, within a pre-built Bodywork container. This module contains the code required to:
+
+1. load the model trained in `stage_1_train_model` and persisted to cloud storage; and,
+2. start a Flask service to score instances (or rows) of data, sent as JSON to a REST API.
 
 We have chosen to use the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework with which to engineer our REST API server. The use of Flask is **not** a requirement and you are free to use different frameworks - e.g. [FastAPI](https://fastapi.tiangolo.com).
 
-Within this stage's directory, `serve_model.py` defines the REST API server application. It can be summarised as,
+The contents of `serve_model.py` defines the REST API server and can be summarised as,
 
 ```python
 from urllib.request import urlopen
@@ -169,9 +210,9 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 ```
 
-We recommend that you spend five minutes familiarising yourself with the full contents of [serve_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage-2-scoring-service/serve_model.py). When Bodywork runs the stage, it will start the server defined by `app` and expose the `/iris/v1/score` route that is being handled by `score()`. Note, that this process has no scheduled end and the stage will be kept up-and-running until it is re-deployed or [deleted](user_guide.md#deleting-redundant-service-deployments).
+We recommend that you spend five minutes familiarising yourself with the full contents of [serve_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage_2_scoring_service/serve_model.py). When Bodywork runs the stage, it will start the server defined by `app` and expose the `/iris/v1/score` route that is being handled by `score()`. Note, that this process has no scheduled end and the stage will be kept up-and-running until it is re-deployed or [deleted](user_guide.md#deleting-redundant-service-deployments).
 
-The `requirements.txt` file lists the 3rd party Python packages that will be Pip-installed on the Bodywork container, as required to run `serve_model.py`. In this example we have,
+The `stages.stage_2_scoring_service.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `serve_model.py` module. In this example we have,
 
 ```text
 Flask==1.1.2
@@ -184,38 +225,36 @@ scikit-learn==0.23.2
 * `joblib` - for loading the persisted model;
 * `numpy` & `scikit-learn` - for working with the ML model.
 
-The `config.ini` file for this stage is,
+Finally, the remaining parameters in `stages.stage_2_scoring_service` section of the `bodywork.yaml` file allow us to configure the remaining key parameters for the stage,
 
-```ini
-[default]
-STAGE_TYPE="service"
-EXECUTABLE_SCRIPT="serve_model.py"
-CPU_REQUEST=0.25
-MEMORY_REQUEST_MB=100
-
-[service]
-MAX_STARTUP_TIME_SECONDS=30
-REPLICAS=2
-PORT=5000
-INGRESS=True
+```yaml
+stage_2_scoring_service:
+  executable_module_path: stage_2_scoring_service/serve_model.py
+  requirements:
+    - Flask==1.1.2
+    - joblib==0.17.0
+    - numpy==1.19.4
+    - scikit-learn==0.23.2
+  cpu_request: 0.25
+  memory_request_mb: 100
+  service:
+    max_startup_time_seconds: 30
+    replicas: 2
+    port: 5000
+    ingress: true
 ```
 
-From which it is clear to see that we have specified that this stage is a service-deployment stage (as opposed to a batch stage), that `serve_model.py` should be the script that is run, together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait for the service to start-up and be 'ready', which port to expose, to create a path to the service from an externally-facing ingress controller (if present in the cluster), and how many instances (or replicas) of the server should be created to stand-behind the cluster-service.
+From which it is clear to see that we have specified that this stage is a service (deployment) stage (as opposed to a batch stage), together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait for the service to start-up and be 'ready', which port to expose, to create a path to the service from an externally-facing ingress controller (if present in the cluster), and how many instances (or replicas) of the server should be created to stand-behind the cluster-service.
 
 ## Configuring the Workflow
 
-The `bodywork.ini` file in the root of this repository contains the configuration for the whole workflow - a workflow being a collection of stages, run in a specific order, that can be represented by a Directed Acyclic Graph (or DAG).
+The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow - a workflow being a collection of stages, run in a specific order, that can be represented by a Directed Acyclic Graph (or DAG).
 
-```ini
-[default]
-PROJECT_NAME="bodywork-ml-pipeline-project"
-DOCKER_IMAGE="bodyworkml/bodywork-core:latest"
-
-[workflow]
-DAG=stage-1-train-model >> stage-2-scoring-service
-
-[logging]
-LOG_LEVEL="INFO"
+```yaml
+project:
+  name: bodywork-ml-pipeline-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: stage_1_train_model >> stage_2_scoring_service
 ```
 
 The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to train the model and then (if successful) deploy the scoring service.

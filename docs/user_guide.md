@@ -2,79 +2,138 @@
 
 This is a comprehensive guide to deploying ML projects to Kubernetes using Bodywork. It assumes that you understand the [key concepts](key_concepts.md) that Bodywork is built upon and that you have worked-through the Quickstart Tutorials.
 
-## Deployment Project Structure
+## Configuring a Project for Deployment with Bodywork
 
-Bodywork-compatible ML projects need to be structured in a specific way. All the files necessary for defining a stage must be contained within a directory dedicated to that stage. The directory name defines the name of the stage. This enables the Bodywork workflow-controller to identify the stages and run them in the desired order. Consider the following example directory structure,
+Bodywork does not impose **any** constraints on how your choose to structure or engineer your projects. So long as each stage in a workflow (or pipeline) can be backed by an executable Python module, then all Bodywork needs to deploy your project is configuration data contained with a `bodywork.yaml` file. This [YAML](https://yaml.org) based configuration file describes how Bodywork should deploy your project, and will be the main focus of this user guide.
+
+As an example that we will frequently refer back to, consider the following project for a ML pipeline with the following distinct stages: prepare data (or features), train models (one module for SVMs and another one for Random Forests), perform model selection, and then deploy the chosen model as a microservice that exposes a REST API for scoring data:
 
 ```text
 root/
- |-- prepare-data/
+ |-- prepare_data/
      |-- prepare_data.py
-     |-- requirements.txt
-     |-- config.ini
- |-- train-svm/
+     |...
+ |-- train_svm/
      |-- train_svm.py
-     |-- requirements.txt
-     |-- config.ini
- |-- train-random-forest/
+     |...
+ |-- train_random-forest/
      |-- train_random_forest.py
-     |-- requirements.txt
-     |-- config.ini
- |-- choose-model/
+     |...
+ |-- choose_model/
      |-- choose_model.py
-     |-- requirements.txt
-     |-- config.ini
- |-- model-scoring-service/
+     |...
+ |-- model_scoring_service/
      |-- model_scoring_app.py
-     |-- requirements.txt
-     |-- config.ini
- |-- bodywork.ini
+     |...
+ |-- bodywork.yaml
 ```
 
-Here we have five directories given names that relate to the ML tasks contained within them. There is also a single workflow configuration file, `bodywork.ini`. Each directory must contain the following files:
+We have chosen to split the project into five directories, one for each stage, but this is not a requirement. There is also a single workflow configuration file, `bodywork.yaml`, whose contents are shown below and will be discussed in depth in each of the sections below:
 
-`*.py`
-: An executable Python module that contains all the code required for the stage. For example, `prepare_data.py` should be capable of performing all data preparation steps when executed from the command line using `python prepare_data.py`.
-
-`requirements.txt`
-: For listing 3rd party Python packages required by the executable Python module. This must follow the [format required by Pip](https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format).
-
-`config.ini`
-: Containing stage configuration that will be discussed in more detail below.
+```yaml
+version: "1.0"
+project:
+  name: my-classification-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: prepare_data >> train_svm, train_random_forest >> choose_model >> model_scoring_service
+stages:
+  prepare_data:
+    executable_module_path: prepare_data/prepare_data.py
+    requirements:
+      - boto3==1.16.15
+      - pandas==1.1.4
+    cpu_request: 0.5
+    memory_request_mb: 100
+    batch:
+      max_completion_time_seconds: 30
+      retries: 2
+  train_svm:
+    executable_module_path: train_svm/train_svm.py
+    requirements:
+      - boto3==1.16.15
+      - pandas==1.1.4
+      - joblib==0.17.0
+      - scikit-learn==0.23.2
+    cpu_request: 1.0
+    memory_request_mb: 500
+    batch:
+      max_completion_time_seconds: 120
+      retries: 2
+  train_random_forest:
+    executable_module_path: train_random_forest/train_random_forest.py
+    requirements:
+      - boto3==1.16.15
+      - pandas==1.1.4
+      - joblib==0.17.0
+      - scikit-learn==0.23.2
+    cpu_request: 2.0
+    memory_request_mb: 750
+    batch:
+      max_completion_time_seconds: 120
+      retries: 2
+  choose_model:
+    executable_module_path: choose_model/choose_model.py
+    requirements:
+      - boto3==1.16.15
+      - joblib==0.17.0
+      - numpy==1.19.4
+      - scikit-learn==0.23.2
+    cpu_request: 0.5
+    memory_request_mb: 100
+    batch:
+      max_completion_time_seconds: 60
+      retries: 2
+  model_scoring_service:
+    executable_module_path: model_scoring_service/model_scoring_app.py
+    args: ["30", "ABC"]
+    requirements:
+      - Flask==1.1.2
+      - joblib==0.17.0
+      - numpy==1.19.4
+      - scikit-learn==0.23.2
+    secrets:
+      USERNAME: my-classification-product-cloud-storage-credentials
+      PASSWORD: my-classification-product-cloud-storage-credentials
+    cpu_request: 0.25
+    memory_request_mb: 100
+    service:
+      max_startup_time_seconds: 30
+      replicas: 2
+      port: 5000
+      ingress: true
+logging:
+  log_level: INFO
+```
 
 ### Running Tasks in Remote Python Environments
 
 ![Bodywork ML pipeline](images/ml_pipeline.png)
 
-Bodywork projects must be packaged as a Git repositories (e.g. on GitHub), that will be cloned by Bodywork when executing workflows. When the Bodywork workflow-controller executes a stage, it starts a new [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) in your Kubernetes cluster and instructs it to pull the required directory from your project's Git repository. Then, it installs any 3rd party Python package requirements, before running the executable Python module.
+Bodywork projects must be packaged as Git repositories (e.g. on GitHub). When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and manages the execution of the workflow.
+
+When the workflow-controller executes a stage, it starts a new [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) in your Kubernetes cluster, installs any 3rd party Python package dependencies that might be required, and then runs the chosen Python module.
 
 ## Configuring Workflows
 
-All configuration for a workflow is contained within the `bodywork.ini` file, that must exist in the root directory of your project's Git repository. An example `bodywork.ini` file for the project structure in the example above could be,
+All configuration for the workflow itself is contained within the `project` section of the `bodywork.yaml` file. From the example above we have,
 
-```ini
-[default]
-PROJECT_NAME="my-classification-project"
-DOCKER_IMAGE="bodyworkml/bodywork-core:latest"
-
-[workflow]
-DAG=prepare-data >> train-svm, train-random-forest >> choose-model >> model-scoring-service
-
-[logging]
-LOG_LEVEL="INFO"
+```yaml
+project:
+  name: my-classification-project
+  docker_image: bodyworkml/bodywork-core:latest
+  DAG: prepare_data >> train_svm, train_random_forest >> choose_model >> model_scoring_service
 ```
 
 Each configuration parameter is used as follows:
 
-`PROJECT_NAME`
+`name`
 : This will be used to identify all Kubernetes resources deployed for this project.
 
-`DOCKER_IMAGE`
+`docker_image`
 : The container image to use for remote execution of Bodywork workflows and stages. This should be set to `bodyworkml/bodywork-core:latest`, which will be pulled from [DockerHub](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core).
 
 `DAG`
 : A description of the workflow structure - the stages to include in each step of the workflow - this will be discussed in more detail below.
-- `LOG_LEVEL`: must be one of: `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. Manages the types of log message to stream to the workflow-controller's standard output stream (stdout).
 
 ### Defining Workflow DAGs
 
@@ -86,88 +145,103 @@ DAG=prepare-data >> train-svm, train-random-forest >> choose-model >> model-scor
 
 The workflow will be interpreted as follows:
 
-- **step 1**: run `prepare-data`; then,
-- **step 2**: run `train-svm` and `train-random-forest` in separate containers, in parallel; then,
-- **step 3**: run `choose-model`; and finally,
-- **step 4**: run `model-scoring-service`.
+- **step 1**: run `prepare_data`; then,
+- **step 2**: run `train_svm` and `train_random_forest` in separate containers, in parallel; then,
+- **step 3**: run `choose_model`; and finally,
+- **step 4**: run `model_scoring_service`.
 
 ## Configuring Stages
 
-The behavior of each stage is controlled by the configuration parameters in the `config.ini` file. For the `model-scoring-service` stage in our example project this could be,
+The behavior of each stage is controlled by the configuration parameters in each stage subsection, within the `stages` section of the `bodywork.yaml` file. For the `model_scoring_service` stage in the example above, we have,
 
-```ini
-[default]
-STAGE_TYPE="service"
-EXECUTABLE_SCRIPT="model_scoring_app.py"
-CPU_REQUEST=0.25
-MEMORY_REQUEST_MB=100
-
-[service]
-MAX_STARTUP_TIME_SECONDS=30
-REPLICAS=1
-PORT=5000
-INGRESS=True
-
-[secrets]
-USERNAME="my-classification-product-cloud-storage-credentials"
-PASSWORD="my-classification-product-cloud-storage-credentials"
+```yaml
+stages:
+  model_scoring_service:
+    executable_module_path: model_scoring_service/model_scoring_app.py
+    args: ["30", "ABC"]
+    requirements:
+      - Flask==1.1.2
+      - joblib==0.17.0
+      - numpy==1.19.4
+      - scikit-learn==0.23.2
+    secrets:
+      USERNAME: my-classification-product-cloud-storage-credentials
+      PASSWORD: my-classification-product-cloud-storage-credentials
+    cpu_request: 0.25
+    memory_request_mb: 100
+    service:
+      max_startup_time_seconds: 30
+      replicas: 2
+      port: 5000
+      ingress: true
 ```
 
-The `[default]` section is common to all types of stage and the `[secrets]` section is optional. The remaining section must be one of `[batch]` or `[service]`.
+Every stage must have either a `batch` or `service` sub-section defined, depending on whether the stage is a batch stage or service stage, respectively. If `batch` is selected, then the executable Python module will be run as a discrete job (with a start and an end), and will be managed as a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/). If `service` is selected, then the executable script will be run as part of a [Kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and will expose a [Kubernetes cluster-ip service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to enable access over HTTP, within the cluster.
 
-Each `[default]` configuration parameter is to be used as follows:
+Top-level stage configuration parameters are to be used as follows:
 
-`STAGE_TYPE`
-: One of `batch` or `service`. If `batch` is selected, then the executable script will be run as a discrete job (with a start and an end), and will be managed as a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/). If `service` is selected, then the executable script will be run as part of a [Kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and will expose a [Kubernetes cluster-ip service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to enable access over HTTP, within the cluster.
+`executable_module_path`
+: The path to the executable Python module to run for the stage. Executable means that executing `python model_scoring_app.py` from the CLI would cause the module to run.
 
-`EXECUTABLE_SCRIPT`
-: The name of the executable Python module to run, which must exist within the stage's directory. Executable means that executing `python model_scoring_app.py` from the CLI would cause the module (or script) to run.
+`args`
+: An optional list of arguments to pass to the executable Python module (as strings).
 
-`CPU_REQUEST` / `MEMORY_REQUEST`
+`requirements`
+: An optional list of Python package dependencies that need to be installed into the Python environment, for the executable module to run successfully. This is same list that you would normally specify in a `requirements.txt` file.
+
+`cpu_request` and `memory_request_mb`
 : The compute resources to request from the cluster in order to run the stage. For more information on the units used in these parameters [refer here](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-units-in-kubernetes).
+
+The `secrets` sub-section is optional and is covered in more depth [below](#injecting-secrets).
 
 ### Batch Stages
 
-An example `[batch]` configuration for the `prepare-data` stage could be as follows,
+An example `batch` stage configuration for the `prepare_data` stage could be as follows,
 
-```ini
-[batch]
-MAX_COMPLETION_TIME_SECONDS=30
-RETRIES=2
+```yaml
+stages:
+  model_scoring_service:
+    ...
+    batch:
+      max_completion_time_seconds: 30
+      retries: 2
 ```
 
 Where:
 
-`MAX_COMPLETION_TIME_SECONDS`
+`max_completion_time_seconds`
 : Time to wait for the given task to run, before retrying or raising a workflow execution error.
 
-`RETRIES`
+`retries`
 : Number of times to retry executing a failed stage, before raising a workflow execution error.
 
 ### Service Deployment Stages
 
-An example `[service]` configuration for the `model-scoring-service` stage could be as follows,
+An example `service` configuration for the `model_scoring_service` stage could be as follows,
 
-```ini
-[service]
-MAX_STARTUP_TIME_SECONDS=30
-REPLICAS=1
-PORT=5000
-INGRESS=True
+```yaml
+stages:
+  model_scoring_service:
+    ...
+    service:
+      max_startup_time_seconds: 30
+      replicas: 2
+      port: 5000
+      ingress: true
 ```
 
 Where:
 
-`MAX_STARTUP_TIME_SECONDS`
+`max_startup_time_seconds`
 : Time to wait for the service to be 'ready' without any errors having occurred. When the service reaches the time limit without raising errors, then it will be marked as 'successful'. If a service deployment stage fails to be successful, then the deployment will be automatically rolled-back to the previous version.
 
-`REPLICAS`
-: Number of independent containers running the service started by the stage's Python executable module -  `model_scoring_app.py`. The service endpoint will automatically route requests to each replica at random.
+`replicas`
+: Number of independent containers running the service started by the stage's executable Python module -  `model_scoring_app.py`. The service endpoint will automatically route requests to each replica in-turn.
 
-`PORT`
+`port`
 : The port to expose on the container - e.g. Flask-based services usually send and receive HTTP requests on port `5000`.
 
-`INGRESS`
+`ingress`
 : Whether or not to create a route (or path) from the cluster's externally-facing ingress controller, to this service. If set to `True`, it will enable external requests to reach the service via the ingress controller (acting as an API gateway), with the following URL,
 
 : `http://YOUR_CLUSTERS_EXTERNAL_IP/NAMESPACE/SERVICE_STAGE_NAME`
@@ -180,12 +254,15 @@ Credentials will be required whenever you wish to pull data or persist models to
 
 The first step in this process is to store your project's secret credentials, securely within its namespace - see [Managing Credentials and Other Secrets](#managing-secrets) below for instructions on how to achieve this using Bodywork.
 
-The second step is to configure the use of this secret with the `[secrets]` section of the stages's `config.ini` file. For example,
+The second step is to configure the use of this secret with the `secrets` sub-section of a stage's configuration, within the `bodywork.yaml` file. For example,
 
-```ini
-[secrets]
-USERNAME="my-classification-product-cloud-storage-credentials"
-PASSWORD="my-classification-product-cloud-storage-credentials"
+```yaml
+stages:
+  model_scoring_service:
+    ...
+    secrets:
+      USERNAME: my-classification-product-cloud-storage-credentials
+      PASSWORD: my-classification-product-cloud-storage-credentials
 ```
 
 Will instruct Bodywork to look for values assigned to the keys `USERNAME` and `PASSWORD` within the Kubernetes secret named `my-classification-product-cloud-storage-credentials`. Bodywork will then assign these secrets to environment variables within the container, called `USERNAME` and `PASSWORD`, respectively. These can then be accessed from within the stage's executable Python module - for example,
@@ -198,6 +275,30 @@ if __name__ == '__main__':
     username = os.environ['USERNAME']
     password = os.environ['PASSWORD']
 ```
+
+## Configuring Logging
+
+Logging configuration is contained within the `logging` section of the `bodywork.yaml` file. From the example above we have,
+
+```yaml
+logging:
+  log_level: INFO
+```
+
+Where:
+
+`log_level`
+: Must be one of: `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. This is used to set the types of log message to stream to the workflow-controller's standard output stream (stdout).
+
+## Validating the `bodywork.yaml` Configuration File
+
+The `bodywork.yaml` file can be checked for errors by issuing the following command from the CLI,
+
+```shell
+$ bodywork validate --check-files
+```
+
+The optional `--check-files` flag will check that all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located (assumed to be current working directory). Validation errors will be reported in the terminal.
 
 ## Configuring Namespaces
 
@@ -267,15 +368,6 @@ $ bodywork workflow \
     master
 ```
 
-It is also possible to specify a branch from a local Git repository. A local version of the above example - this time using the `dev` branch - could be as follows,
-
-```shell
-$ bodywork workflow \
-    --namespace=my-classification-product \
-    file:///absolute/path/to/my-classification-product \
-    dev
-```
-
 ### Testing Service Deployments
 
 A brief summary of all service-related information can be retrieved by issuing,
@@ -317,9 +409,9 @@ $ curl http://localhost:8001/api/v1/namespaces/my-classification-product/service
     --data '{"x": 5.1, "y": 3.5}'
 ```
 
-Should return the payload according to how you've defined your service in the executable Python module - e.g. in the `model_scoring_app.py` file found within the `model-scoring-service` stage's directory.
+Should return the payload according to how you've defined your service in the executable Python module - e.g. in the `model_scoring_app.py` file.
 
-If you have installed an ingress controller in your cluster, and if the the `INGRESS` [configuration parameter](#service-deployment-stages) has been set to `True` in the service stage's `config.ini` file, then the service can be tested via the public internet using,
+If you have installed an ingress controller in your cluster, and if the the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) has been set to `true`, then the service can be tested via the public internet using,
 
 ```shell
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/my-classification-product/my-classification-product--model-scoring-service/ \
@@ -353,14 +445,6 @@ All logs should start in the same way,
 
 ```text
 2020-11-24 20:04:12,648 - INFO - workflow.run_workflow - attempting to run workflow for project=https://github.com/my-github-username/my-classification-product on branch=master in kubernetes namespace=my-classification-product
-git version 2.24.3 (Apple Git-128)
-Cloning into 'bodywork_project'...
-remote: Enumerating objects: 92, done.
-remote: Counting objects: 100% (92/92), done.
-remote: Compressing objects: 100% (64/64), done.
-remote: Total 92 (delta 49), reused 70 (delta 27), pack-reused 0
-Receiving objects: 100% (92/92), 20.51 KiB | 1.58 MiB/s, done.
-Resolving deltas: 100% (49/49), done.
 2020-11-24 20:04:15,579 - INFO - workflow.run_workflow - attempting to execute DAG step=['prepare-data']
 2020-11-24 20:04:15,580 - INFO - workflow.run_workflow - creating job=my-classification-product--prepare-data in namespace=my-classification-product
 ...
@@ -373,10 +457,6 @@ After a stage completes, you will notice that the logs from within the container
 ---- pod logs for my-classification-product--prepare-data
 ----------------------------------------------------------------------------------------------------
 2020-11-24 20:04:18,917 - INFO - stage.run_stage - attempting to run stage=prepare-data from master branch of repo at https://github.com/my-github-username/my-classification-product
-git version 2.20.1
-Cloning into 'bodywork_project'...
-Collecting boto3==1.16.15
-  Downloading boto3-1.16.15-py2.py3-none-any.whl (129 kB)
 ...
 ```
 
