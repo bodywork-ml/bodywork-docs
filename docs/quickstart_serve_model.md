@@ -1,6 +1,6 @@
 # Deploying a Model-Scoring Service
 
-![serve model](images/serve_model.png)
+![serve model](images/serve_model_qs.png)
 
 This tutorial refers to files within a Bodywork project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-serve-model-project). If you want to execute the examples, you will need to have setup [access to a Kubernetes cluster](index.md#prerequisites) and [installed bodywork](installation.md) on your local machine.
 
@@ -11,15 +11,15 @@ We **strongly** recommend that you find five minutes to read about the [key conc
 
 ## What am I going to Learn?
 
-* [x] How to deploy a pre-trained model, as a microservice with a REST API, to Kubernetes.
-* [x] How to deploy the service.
+* [x] How to expose a pre-trained model as a microservice with a REST API.
+* [x] How to deploy the service to Kubernetes.
 * [x] How to test the deployed service.
 
 ## A REST API for Predicting Class
 
 The example model that we want to serve returns the predicted sub-species of iris plant, given four of its critical dimensions as inputs. For more information on this ML task see ['Quickstart - Deploy ML Pipeline'](quickstart_ml_pipeline.md#the-ml-task).
 
-The Bodywork project for this single-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-serve-model-project), whose root directory is structured as follows,
+The Bodywork project for this single-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-serve-model-project), and is structured as follows,
 
 ```text
 root/
@@ -29,7 +29,7 @@ root/
  |-- bodywork.ini
 ```
 
-We have included the pre-trained model as part of the Bodywork project, for convenience (not as best practice).
+We have included the pre-trained model as part of the project for convenience (not as best practice).
 
 ## Configuring the Service
 
@@ -60,9 +60,14 @@ logging:
   log_level: INFO
 ```
 
-The `stages.scoring_service.executable_module_path` parameter points to the executable Python module - `service.py` - defining a service that will be started when it is executed within a pre-built container on Kubernetes, as the `scoring_service` (service) stage.
+The `stages.scoring_service.executable_module_path` parameter points to the executable Python module - `service.py` - that defines what will happen when the `scoring_service` (service) stage is executed, within a pre-built Bodywork container. This module contains the code required to:
 
-This module contains the code required to load the pre-trained model and then start a service to score instances (or rows) of data, sent as JSON to a REST API endpoint. We have chosen to use the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework with which to engineer our REST API server application. The use of Flask is **not** a requirement in any way and you are free to use different frameworks - e.g. [FastAPI](https://fastapi.tiangolo.com). The contents of `service.py` can be summarised as follows,
+1. load the pre-trained model; and,
+2. start a Flask service to score instances (or rows) of data, sent as JSON to a REST API.
+
+We have chosen to use the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework with which to engineer our REST API server application. The use of Flask is **not** a requirement in any way and you are free to use different frameworks - e.g. [FastAPI](https://fastapi.tiangolo.com).
+
+The contents of `service.py` can be summarised as follows,
 
 ```python
 from typing import Dict
@@ -150,7 +155,7 @@ The `project` section of the `bodywork.yaml` file contains the configuration for
 project:
   name: bodywork-serve-model-project
   docker_image: bodyworkml/bodywork-core:latest
-  DAG: score_data
+  DAG: scoring_service
 ```
 
 The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to run the `scoring_service` stage.
@@ -190,7 +195,8 @@ $ kubectl -n scoring-service get all
 ## Testing the API
 
 Service deployments are accessible via HTTP from within the cluster - they are not exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local proxy server to enable access to your cluster. This can be achieved by issuing the following command,
-x```shell
+
+```shell
 $ kubectl proxy
 ```
 

@@ -28,7 +28,7 @@ The Jupyter notebook titled [ml_prototype_work.ipynb](https://github.com/bodywor
 
 Now that we have developed a solution to our chosen ML task, how do we get it into production - i.e. how can we split the Jupyter notebook into a 'train-model' stage that persists a trained model to cloud storage, and a separate 'deploy-scoring-service' stage that will load the persisted model and start a web service to expose a model-scoring API?
 
-The Bodywork project for this multi-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-ml-pipeline-project), whose root directory is as follows,
+The Bodywork project for this multi-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-ml-pipeline-project), and is structured as follows,
 
 ```text
 root/
@@ -78,11 +78,11 @@ logging:
   log_level: INFO
 ```
 
-The remainder of this tutorial is concerned with explaining how the deployment configuration within `bodywork.yaml` is used to deploy the pipeline, as defined within the `train_model.py` and `serve_model.py` Python modules.
+The remainder of this tutorial is concerned with explaining how the configuration within `bodywork.yaml` is used to deploy the pipeline, as defined within the `train_model.py` and `serve_model.py` Python modules.
 
 ## Configuring the Batch Stage
 
-The `stages.stage_1_train_model.executable_module_path` parameter points to the executable Python module - `train_model.py` - that defines what will happen when it is executed within a [pre-built Bodywork container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) on Kubernetes, as the `stage_1_train_model` (batch) stage. Using the `ml_prototype_work.ipynb` notebook as a reference, the `train_model.py` module contains the code required to:
+The `stages.stage_1_train_model.executable_module_path` points to the executable Python module - `train_model.py` - that defines what will happen when the `stage_1_train_model` (batch) stage is executed, within a pre-built [Bodywork container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core). This module contains the code required to:
 
 1. download data from an AWS S3 bucket;
 2. pre-process the data (e.g. extract labels for supervised learning);
@@ -164,13 +164,14 @@ From which it is clear to see that we have specified that this stage is a batch 
 
 ## Configuring the Service Stage
 
-The `stages.stage_2_scoring_service.executable_module_path` parameter points to the executable Python module - `serve_model.py` - defining a service that will be started when it is executed within a pre-built container on Kubernetes, as the `stage_2_scoring_service` (service) stage.
+The `stages.stage_2_scoring_service.executable_module_path` parameter points to the executable Python module - `serve_model.py` - that defines what will happen when the `stage_2_scoring_service` (service) stage is executed, within a pre-built Bodywork container. This module contains the code required to:
 
-This module contains the code required to load the model trained in `stage_1_train_model` and use it to score single instances (or rows) of data, sent to a REST API endpoint in JSON format. The model's score will be used to return the model's prediction as JSON data in the response.
+1. load the model trained in `stage_1_train_model` and persisted to cloud storage; and,
+2. start a Flask service to score instances (or rows) of data, sent as JSON to a REST API.
 
 We have chosen to use the [Flask](https://flask.palletsprojects.com/en/1.1.x/) framework with which to engineer our REST API server. The use of Flask is **not** a requirement and you are free to use different frameworks - e.g. [FastAPI](https://fastapi.tiangolo.com).
 
-The contents of `serve_model.py` defines the REST API server application. It can be summarised as,
+The contents of `serve_model.py` defines the REST API server and can be summarised as,
 
 ```python
 from urllib.request import urlopen

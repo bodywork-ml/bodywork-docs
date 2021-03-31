@@ -1,6 +1,6 @@
 # Deploying a Batch Job
 
-![deploy batch job](images/batch_job.png)
+![deploy batch job](images/batch_job_qs.png)
 
 This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to execute the examples, you will need to have setup [access to a Kubernetes cluster](index.md#prerequisites) and [installed bodywork](installation.md) on your local machine.
 
@@ -17,9 +17,9 @@ We **strongly** recommend that you find five minutes to read about the [key conc
 
 ## Scoring a Dataset with a Model
 
-The example task that we want to run as a batch job with Bodywork, is to load a pre-trained model and use it to score a dataset. The latest dataset will be downloaded from cloud storage (AWS S3) and the pre-trained model will be included in the same directory as the files configuring the stage, for convenience (not as best practice).
+The example task that we want to deploy as a batch job, is to load a pre-trained model and use it to score a dataset. The latest dataset will be downloaded from cloud storage (AWS S3) and the pre-trained model will be bundled with the executable Python module defining the job - this is for convenience (not as a best practice).
 
-The Bodywork project for this single-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-batch-job-project), whose root directory is structured as follows,
+The project for this single-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-batch-job-project) and is structured as follows,
 
 ```text
 root/
@@ -56,7 +56,7 @@ logging:
   log_level: INFO
 ```
 
-The `stages.score_data.executable_module_path` parameter points to the executable Python module - `score.py` - that defines what will happen when it is executed within a pre-built container on Kubernetes, as the `score_data` (batch) stage. This module contains the code required to:
+The `stages.score_data.executable_module_path` parameter points to the executable Python module - `score.py` - that defines what will happen when the `score_data` (batch) stage is executed, within a pre-built Bodywork container. This module contains the code required to:
 
 1. download the new dataset from cloud storage (AWS S3);
 2. load the pre-trained model `classification_model.joblib`;
