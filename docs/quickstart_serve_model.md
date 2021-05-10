@@ -106,7 +106,7 @@ if __name__ == '__master__':
 
 We recommend that you spend five minutes familiarising yourself with the full contents of [service.py](https://github.com/bodywork-ml/bodywork-serve-model-project/blob/master/scoring_service/service.py). When Bodywork runs the stage, it will do so in the same way as if you were to run,
 
-```shell
+```text
 $ python service.py
 ```
 
@@ -164,7 +164,7 @@ The most important element is the specification of the workflow DAG, which in th
 
 Firstly, make sure that the [bodywork](https://pypi.org/project/bodywork/) package has been Pip-installed into a local Python environment that is active. Then, make sure that there is a namespace setup for use by Bodywork projects - e.g. `scoring-service` - by running the following at the command line,
 
-```shell
+```text
 $ bodywork setup-namespace scoring-service
 ```
 
@@ -179,7 +179,7 @@ creating service-account=bodywork-jobs-and-deployments in namespace=scoring-serv
 
 Then, the workflow can be tested by running the workflow-controller locally (to orchestrate remote containers on k8s), using,
 
-```shell
+```text
 $ bodywork workflow \
     --namespace=scoring-service \
     https://github.com/bodywork-ml/bodywork-serve-model-project \
@@ -188,7 +188,7 @@ $ bodywork workflow \
 
 Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `scoring-service` namespace. The logs from the workflow-controller and the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `scoring-service` namespace, by using the kubectl CLI tool - e.g.,
 
-```shell
+```text
 $ kubectl -n scoring-service get all
 ```
 
@@ -196,13 +196,13 @@ $ kubectl -n scoring-service get all
 
 Service deployments are accessible via HTTP from within the cluster - they are not exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local proxy server to enable access to your cluster. This can be achieved by issuing the following command,
 
-```shell
+```text
 $ kubectl proxy
 ```
 
 Then in a new shell, you can use the curl tool to test the service. For example,
 
-```shell
+```text
 $ curl http://localhost:8001/api/v1/namespaces/scoring-service/services/bodywork-serve-model-project--scoring-service/proxy/iris/v1/score \
     --request POST \
     --header "Content-Type: application/json" \
@@ -223,7 +223,7 @@ According to how the payload has been defined in the `scoring-service/serve.py` 
 
 If an ingress controller is operational in your cluster, then the service can be tested via the public internet using,
 
-```shell
+```text
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/scoring-service/bodywork-serve-model-project--scoring-service/iris/v1/score \
     --request POST \
     --header "Content-Type: application/json" \
@@ -236,6 +236,6 @@ See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to re
 
 To clean-up the deployment in its entirety, delete the namespace using kubectl - e.g. by running,
 
-```shell
+```text
 $ kubectl delete ns scoring-service
 ```

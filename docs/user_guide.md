@@ -294,7 +294,7 @@ Where:
 
 The `bodywork.yaml` file can be checked for errors by issuing the following command from the CLI,
 
-```shell
+```text
 $ bodywork validate --check-files
 ```
 
@@ -304,7 +304,7 @@ The optional `--check-files` flag will check that all `executable_module_path` p
 
 Each Bodywork project should operate within its own [namespace](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) in your Kubernetes cluster. To setup a Bodywork compatible namespace, issue the following command from the CLI,
 
-```shell
+```text
 $ bodywork setup-namespace my-classification-product
 ```
 
@@ -323,7 +323,7 @@ We can see that in addition to creating the namespace, two [service-accounts](ht
 
 Credentials will be required whenever you wish to pull data or persist models to cloud storage, or access private APIs from within a stage. We provide a secure mechanism for dynamically injecting secret credentials as environment variables into the container running a stage. Before a stage can be configured to inject a secret into its host container, the secret has to be placed within the Kubernetes namespace that the workflow will be deployed to. This can be achieved from the command line - for example,
 
-```shell
+```text
 $ bodywork secret create \
     --namespace=my-classification-product \
     --name=my-classification-product-cloud-storage-credentials \
@@ -336,7 +336,7 @@ Will store `USERNAME` and `PASSWORD` within a [Kubernetes secret resource](https
 
 When working with remote Git repositories that are private, Bodywork will attempt to access them via [SSH](https://en.wikipedia.org/wiki/SSH_(Secure_Shell)). For example, to setup SSH access for use with GitHub, see [this article](https://devconnected.com/how-to-setup-ssh-keys-on-github/). This process will result in the creation of a private and public key-pair to use for authenticating with GitHub. The private key must be stored as a Kubernetes secret in the project's namespace, using the following naming convention for the secret name and secret data key,
 
-```shell
+```text
 $ bodywork secret create \
     --namespace=my-classification-product \
     --name=ssh-github-private-key \
@@ -361,7 +361,7 @@ Workflows can be triggered locally from the command line, with the workflow-cont
 
 For the example project used throughout this user guide, the CLI command for triggering the workflow locally using the `master` branch of the remote Git repository, would be as follows,
 
-```shell
+```text
 $ bodywork workflow \
     --namespace=my-classification-product \
     https://github.com/my-github-username/my-classification-product \
@@ -372,7 +372,7 @@ $ bodywork workflow \
 
 A brief summary of all service-related information can be retrieved by issuing,
 
-```shell
+```text
 $ bodywork service display \
     --namespace=my-classification-product
 ```
@@ -396,13 +396,13 @@ my-classification-product--model-scoring-service:
 
 Service deployments are accessible via HTTP from within the cluster - they cannot be exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local [proxy server](https://kubernetes.io/docs/tasks/extend-kubernetes/http-proxy-access-api/) to enable access to your cluster. This can be achieved by issuing the following command,
 
-```shell
+```text
 $ kubectl proxy
 ```
 
 Then in a new shell, you can use the `curl` tool to test the service. For example, issuing,
 
-```shell
+```text
 $ curl http://localhost:8001/api/v1/namespaces/my-classification-product/services/my-classification-product--model-scoring-service/proxy \
     --request POST \
     --header "Content-Type: application/json" \
@@ -413,7 +413,7 @@ Should return the payload according to how you've defined your service in the ex
 
 If you have installed an ingress controller in your cluster, and if the the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) has been set to `true`, then the service can be tested via the public internet using,
 
-```shell
+```text
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/my-classification-product/my-classification-product--model-scoring-service/ \
     --request POST \
     --header "Content-Type: application/json" \
@@ -426,14 +426,14 @@ See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to re
 
 Once you have finished testing, you may want to delete any service deployments that have been created. To list all active service deployments within a namespace, issue the command,
 
-```shell
+```text
 $ bodywork service display \
     --namespace=my-classification-project
 ```
 
 Then to delete a service deployment use,
 
-```shell
+```text
 $ bodywork service delete
     --namespace=my-classification-project
     --name=my-classification-product--model-scoring-service
@@ -466,7 +466,7 @@ The aim of this log structure is to provide a useful way of debugging workflows 
 
 Workflows can be executed remotely using,
 
-```shell
+```text
 $ bodywork deployment create \
     --namespace=my-classification-product \
     --name=initial-deployment \
@@ -477,7 +477,7 @@ $ bodywork deployment create \
 
 You can check on the status of the deployment using,
 
-```shell
+```text
 $ bodywork deployment display \
     --namespace=my-classification-product
 ```
@@ -491,7 +491,7 @@ initial-deployment    2020-12-11 20:21:04+00:00     2020-12-11 20:23:12+00:00   
 
 And retrieve the logs using,
 
-```shell
+```text
 $ bodywork deployment logs \
     --namespace=my-classification-product \
     --name=initial-deployment
@@ -499,13 +499,13 @@ $ bodywork deployment logs \
 
 Which will stream logs directly to your terminal. This output stream could also be redirected to a local file by using a shell redirection command such as,
 
-```shell
+```text
 $ bodywork deployment logs ... > log.txt
 ```
 
 To overwrite the existing contents of `log.txt`, or,
 
-```shell
+```text
 $ bodywork deployment logs ... >> log.txt
 ```
 
@@ -515,7 +515,7 @@ To append to the existing contents of `log.txt`.
 
 If your workflows are executing successfully, then you can schedule the workflow-controller to operate remotely on the cluster as a [Kubernetes cronjob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/). For example, issuing the following command from the CLI,
 
-```shell
+```text
 $ bodywork cronjob create \
     --namespace=my-classification-product \
     --name=my-classification-product \
@@ -527,7 +527,7 @@ $ bodywork cronjob create \
 
 Would schedule our example project to run every 15 minutes. The cronjob's execution history can be retrieved from the cluster using,
 
-```shell
+```text
 $ bodywork cronjob history \
     --namespace=my-classification-product \
     --name=my-classification-product
@@ -544,7 +544,7 @@ my-classification-product-1605214260    2020-11-12 20:51:04+00:00     2020-11-12
 
 The logs for each job executed by the cronjob are contained within the remote workflow-controller. The logs for a single workflow execution attempt can be retrieved by issuing the `bodywork cronjob logs` command on the CLI - for example,
 
-```shell
+```text
 $ bodywork cronjob logs \
     --namespace=my-classification-product-1605214260 \
     --name=my-classification-product-1605214260

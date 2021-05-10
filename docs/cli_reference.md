@@ -4,7 +4,7 @@ Bodywork is distributed as a Python 3 package that exposes a CLI for interacting
 
 ## Get Version
 
-```shell
+```text
 $ bodywork --version
 ```
 
@@ -14,7 +14,7 @@ Prints the Bodywork package version to stdout.
 
 The `bodywork.yaml` file can be checked for errors by issuing the following command from the CLI,
 
-```shell
+```text
 $ bodywork validate --check-files
 ```
 
@@ -22,7 +22,7 @@ The optional `--check-files` flag will check if all `executable_module_path` pat
 
 ## Configure Namespace
 
-```shell
+```text
 $ bodywork setup-namespace YOUR_NAMESPACE
 ```
 
@@ -30,7 +30,7 @@ Create and prepare a Kubernetes namespace for running Bodywork workflows - see [
 
 ## Run Workflow
 
-```shell
+```text
 $ bodywork workflow \
     --namespace=YOUR_NAMESPACE \
     REMOTE_GIT_REPO_URL \
@@ -41,7 +41,7 @@ Clones the chosen branch of a Git repository containing a Bodywork ML project an
 
 ## Run Stage
 
-```shell
+```text
 $ bodywork stage \
     REMOTE_GIT_REPO_URL \
     REMOTE_GIT_REPO_BRANCH \
@@ -59,7 +59,7 @@ A deployment is defined as a workflow-controller running as a job within the clu
 
 ### Get Deployments
 
-```shell
+```text
 $ bodywork deployment display \
     --namespace=YOUR_NAMESPACE
 ```
@@ -68,7 +68,7 @@ Will list all workflow-controller jobs that have run within `YOUR_NAMESPACE`, wh
 
 ### Create Deployments
 
-```shell
+```text
 $ bodywork deployment create \
     --namespace=YOUR_NAMESPACE \
     --name=DEPLOYMENT_NAME \
@@ -81,7 +81,7 @@ Will immediately deploy your project by starting a workflow-controller job in yo
 
 ### Get Deployment Workflow Logs
 
-```shell
+```text
 $ bodywork deployment logs \
     --namespace=YOUR_NAMESPACE \
     --name=DEPLOYMENT_NAME
@@ -95,7 +95,7 @@ Secrets are used to pass credentials to containers running workflow stages that 
 
 ### Create Secrets
 
-```shell
+```text
 $ bodywork secret create \
     --namespace=YOUR_NAMESPACE \
     --name=SECRET_NAME \
@@ -104,7 +104,7 @@ $ bodywork secret create \
 
 ### Delete Secrets
 
-```shell
+```text
 $ bodywork secret delete \
     --namespace=YOUR_NAMESPACE \
     --name=SECRET_NAME
@@ -112,14 +112,14 @@ $ bodywork secret delete \
 
 ### Get Secrets
 
-```shell
+```text
 $ bodywork secret display \
     --namespace=YOUR_NAMESPACE
 ```
 
 Will print all secrets in `YOUR_NAMESPACE` to stdout.
 
-```shell
+```text
 $ bodywork secret display \
     --namespace=YOUR_NAMESPACE \
     --name=SECRET_NAME
@@ -133,7 +133,7 @@ Unlike batch stages that have a discrete lifetime, service deployments live inde
 
 ### Get Services
 
-```shell
+```text
 $ bodywork service display \
     --namespace=YOUR_NAMESPACE
 ```
@@ -142,7 +142,7 @@ Will list information on all active service deployments available in `YOUR_NAMES
 
 ### Delete Services
 
-```shell
+```text
 $ bodywork service delete \
     --namespace=YOUR_NAMESPACE \
     --name=SERVICE_NAME
@@ -156,7 +156,7 @@ Workflows can be executed on a schedule using Bodywork cronjobs. Scheduled workf
 
 ### Get Cronjobs
 
-```shell
+```text
 $ bodywork cronjob display \
     --namespace=YOUR_NAMESPACE
 ```
@@ -165,7 +165,7 @@ Will list all active cronjobs within `YOUR_NAMESPACE`.
 
 ### Create Cronjob
 
-```shell
+```text
 $ bodywork cronjob create \
     --namespace=YOUR_NAMESPACE \
     --name=CRONJOB_NAME \
@@ -180,7 +180,7 @@ Will create a cronjob whose schedule must be a valid [cron expression](https://e
 
 ### Delete Cronjob
 
-```shell
+```text
 $ bodywork cronjob delete \
     --namespace=YOUR_NAMESPACE \
     --name=CRONJOB_NAME
@@ -190,7 +190,7 @@ Will also delete all historic workflow-controller jobs associated with this cron
 
 ### Get Cronjob History
 
-```shell
+```text
 $ bodywork cronjob history \
     --namespace=YOUR_NAMESPACE \
     --name=CRONJOB_NAME
@@ -200,7 +200,7 @@ Display all workflow-controller jobs that were created by a cronjob.
 
 ### Get Cronjob Workflow Logs
 
-```shell
+```text
 $ bodywork cronjob logs \
     --namespace=YOUR_NAMESPACE \
     --name=HISTORICAL_CRONJOB_WORKFLOW_EXECUTION_JOB_NAME
@@ -210,13 +210,13 @@ Stream the workflow logs from a historical workflow-controller job, to your term
 
 ## Debug
 
-```shell
+```text
 $ bodywork debug SECONDS
 ```
 
 Runs the Python `time.sleep` function for `SECONDS`. This is intended for use with the Bodywork image and kubectl - for deploying a container on which to open shell access for advanced debugging. For example, issuing the following command,
 
-```shell
+```text
 $ kubectl create deployment DEBUG_DEPLOYMENT_NAME \
     -n YOUR_NAMESPACE \
     --image=bodyworkml/bodywork-core:latest \
@@ -225,18 +225,18 @@ $ kubectl create deployment DEBUG_DEPLOYMENT_NAME \
 
 Will deploy the Bodywork container and run the `bodywork debug SECONDS` command within it. While the container is sleeping, a shell on the container in this deployment can be started. To achieve this, first of all find the pod's name, using,
 
-```shell
+```text
 $ kubectl get pods -n YOUR_NAMESPACE | grep DEBUG_DEPLOYMENT_NAME
 ```
 
 And then [open a shell to the container](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/#getting-a-shell-to-a-container) within this pod using,
 
-```shell
+```text
 $ kubectl exec DEBUG_DEPLOYMENT_POD_NAME -n YOUR_NAMESPACE -it -- /bin/bash
 ```
 
 Once you're finished debugging, the deployment can be shut-down using,
 
-```shell
+```text
 $ kubectl delete deployment DEBUG_DEPLOYMENT_NAME -n YOUR_NAMESPACE
 ```
