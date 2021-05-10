@@ -4,7 +4,14 @@ If you already have access to a Kubernetes cluster, then skip to [Configuring In
 
 ## Deploying Locally
 
-If you want to test deployments locally, then we recommend that you start by installing [Minikube](https://minikube.sigs.Kubernetes.io/docs/). Minikube will enable you with everything you need to use Bodywork, it is well documented and supported by a large community.
+If you want to test deployments locally, then you can run Kubernetes on your local machine with the help of one of the following tools:
+
+- [Minikube](https://minikube.sigs.Kubernetes.io/docs/)
+- [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io)
+- [k3s]
+- [Docker for Desktop](https://www.docker.com/products/docker-desktop)
+
+We currently recommend Minikube, as it comes packaged with useful add-ons (e.g., ingress and the Kubernetes dashboard), that make life easy for those starting-out with Kubernetes. It is also well documented and supported by a large community.
 
 ## Managed Kubernetes Services
 
