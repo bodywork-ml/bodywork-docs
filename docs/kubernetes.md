@@ -8,10 +8,10 @@ If you want to test deployments locally, then you can run Kubernetes on your loc
 
 - [Minikube](https://minikube.sigs.Kubernetes.io/docs/)
 - [Kubernetes in Docker (KIND)](https://kind.sigs.k8s.io)
-- [k3s]
+- [k3s](https://k3s.io)
 - [Docker for Desktop](https://www.docker.com/products/docker-desktop)
 
-We currently recommend Minikube, as it comes packaged with useful add-ons (e.g., ingress and the Kubernetes dashboard), that make life easy for those starting-out with Kubernetes. It is also well documented and supported by a large community.
+We currently recommend Minikube, as it comes packaged with useful add-ons (e.g., ingress and the Kubernetes dashboard), that makes life easy for those starting-out with Kubernetes. It is also well documented and supported by a large community.
 
 ## Managed Kubernetes Services
 
@@ -25,7 +25,7 @@ When you are ready to deploy to the cloud, then the easiest path is via a manage
 
 ## Required Kubernetes Version
 
-Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (12.0.1) has full compatibility with Kubernetes 1.16. We recommend that you also use Kubernetes 1.16, but in-practice Bodywork will work with other versions - more information can be found [here](https://github.com/kubernetes-client/python#compatibility). Bodywork is tested against Kubernetes 1.16 running on [Amazon Elastic Kubernetes Service](https://aws.amazon.com/eks/).
+Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (12.0.1) has full compatibility with Kubernetes 1.16. We recommend that you also use Kubernetes 1.16, but in-practice Bodywork will work with other versions - more information can be found [here](https://github.com/kubernetes-client/python#compatibility). Bodywork is tested against Kubernetes 1.16 running on [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/).
 
 ## Installing the Kubectl Tool
 
@@ -119,19 +119,19 @@ Here is a brief introduction to the most common types of Kubernetes resources, w
 : A high-level resource for managing applications running in pods. It can ensure that a minimum number of pods are always operational (by restarting failed pods), manage rolling-updates and (where necessary) rollbacks. Bodywork uses deployments for managing your services.
 
 `service`
-: A service is a single constant IP address, through which clients can connect to services running in pods. Bodywork will create an internal cluster service for every service that you want to deploy. This enables any other client within the cluster to access it at this IP address, or via a domain name that uses the following convention,
+: A service is a single constant IP address, through which clients can connect to services running in pods. Bodywork will create an internal cluster service for every service that you want to deploy. This enables any other client within the cluster to access it at this IP address, or via a domain name following the convention,
 
     `http://SERVICE_NAME.NAMESPACE.svc.cluster.local`
 
 `ingress`
-: If you have enabled ingress for your cluster, then it will be running the [NGINX ingress-controller](#configuring-ingress). This will route requests from clients external to the cluster, to your services within the cluster, using the URL to locate the desired service. Bodywork can create and manages ingress rules for your services, so that they can be accessed by clients external to the cluster.
+: If you have enabled ingress for your cluster, then it will be running the [NGINX ingress-controller](#configuring-ingress). This will route requests from clients external to the cluster, to your services within the cluster, using the URL to locate the desired service. Bodywork can create and manage ingress rules for your services, so that they're accessible by clients external to the cluster.
 
 `secret`
 : A mechanism for storing sensitive information in an encrypted format and securely distributing it to the pods that need it. Bodywork uses secrets to store any credentials that your projects may need access to - e.g., SHH keys for private Git repositories or API credentials.
 
 ### Accessing the Dashboard
 
-The Kubernetes dashboard allows you to view all resources that have been deployed to your cluster. You can access it by issuing the following command,
+The [Kubernetes dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) allows you to view all resources that have been deployed to your cluster and also provides some basic resource management functionality. You can access it by issuing the following command,
 
 ```text
 $ minikube dashboard
@@ -144,13 +144,13 @@ Which will open the dashboard in your default web browser. By default, it will o
 Kubectl is the command-line tool that lets you control your Kubernetes cluster. Minikube comes packaged with a version of Kubectl that you can use via the Minikube CLI. For example, to get basic cluster information you would use,
 
 ```text
-$ minikube kubectl cluster-info
+$ minikube kubectl -- cluster-info
 
 Kubernetes master is running at https://192.168.64.5:8443
 KubeDNS is running at https://192.168.64.5:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 ```
 
-If you get tired of prepending `minikube` to each Kubectl command, you can follow [our instructions](#installing-the-kubectl-tool) for installing the official version of Kubectl.
+i.e., you add the Kubectl command you want to run, after `minikube kubectl --`. If you get tired of prepending this to each Kubectl command, you can follow [our instructions](#installing-the-kubectl-tool) for installing the official version of Kubectl.
 
 Some useful Kubectl commands to get started with:
 
@@ -175,8 +175,6 @@ To get a list of every resource within a namespace,
 ```text
 $ kubectl -n MY_NAMESPACE get all
 ```
-
-Particularly useful when used with the [watch tool](https://en.wikipedia.org/wiki/Watch_(command)) to monitor deployments from the command-line, as an alternative to using the Kubernetes dashboard.
 
 To focus on a specific resource type, for example pods, you would instead use,
 
@@ -233,6 +231,18 @@ http://localhost:8001/api/v1/namespaces/NAMESPACE/services/SERVICE_NAME/proxy/
 ```
 
 Will take you to service `SERVICE_NAME`, in the namespace `NAMESPACE`.
+
+### Monitoring Deployments
+
+An effective way of monitoring a Bodywork deployment, is via the Kubernetes dashboard. Before you trigger a new deployment, open the dashboard and browse to `Workloads`, for the namespace in which the deployment is to be made. Leave your browser open while you trigger the deployment using the Bodywork CLI. The dashboard will update automatically, showing you the resources that have been created as they are deployed.
+
+An alternative to the Kubernetes dashboard, is to use the [watch](https://en.wikipedia.org/wiki/Watch_(command)) command from within a shell, to monitor the results of a Kubectl command. For example,
+
+```text
+$ watch --interval 1 kubectl -n default get all
+```
+
+Will display a list of all resources in the default namespace, updating with an interval of 1 second.
 
 ### Working with remote Clusters
 
