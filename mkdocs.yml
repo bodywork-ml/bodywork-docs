@@ -11,6 +11,7 @@ nav:
   - User Guide: user_guide.md
   - CLI Reference: cli_reference.md
   - Deployment Templates: template_projects.md
+  - Licensing: licensing.md
   - Contact: contact.md
   - Quickstart Tutorials:
     - Run Batch Job: quickstart_batch_job.md
