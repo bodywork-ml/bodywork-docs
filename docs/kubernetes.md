@@ -218,6 +218,22 @@ kubectl exec -n MY_NAMESPACE foo-7dd8975899-57hj6 -it -- /bin/bash
 
 This is also useful for debugging - for example, you can open a Python REPL or run `env` to list all environment variables (e.g. secrets) that have made it onto the container.
 
+#### Starting a HTTP proxy server to the Kubernetes API
+
+Issuing the following command,
+
+```text
+$ kubectl proxy --port 8001
+```
+
+Starts a proxy server that acts as a gateway to the Kubernetes API. Among other things, this allows you to access services on the cluster that are not exposed to the public internet. For example, with the proxy server operational, browsing to,
+
+```http
+http://localhost:8001/api/v1/namespaces/NAMESPACE/services/SERVICE_NAME/proxy/
+```
+
+Will take you to service `SERVICE_NAME`, in the namespace `NAMESPACE`.
+
 ### Working with remote Clusters
 
 There are [many options](#managed-kubernetes-services) for creating managed Kubernetes clusters, in the cloud. Setting these up is beyond the scope of this introduction to Kubernetes. Once your remote cluster is operational, deploying to it is as easy as changing the cluster that Kubectl is targeting. To see what clusters Kubectl has been setup to use, run,
