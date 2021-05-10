@@ -119,7 +119,9 @@ Here is a brief introduction to the most common types of Kubernetes resources, w
 : A high-level resource for managing applications running in pods. It can ensure that a minimum number of pods are always operational (by restarting failed pods), manage rolling-updates and (where necessary) rollbacks. Bodywork uses deployments for managing your services.
 
 `service`
-: A service is a single constant IP address, through which clients can connect to services running in pods. Bodywork will create an internal cluster service for every service that you want to deploy. This enables any other client within the cluster to access it at this IP address.
+: A service is a single constant IP address, through which clients can connect to services running in pods. Bodywork will create an internal cluster service for every service that you want to deploy. This enables any other client within the cluster to access it at this IP address, or via a domain name that uses the following convention,
+
+    `http://SERVICE_NAME.NAMESPACE.svc.cluster.local`
 
 `ingress`
 : If you have enabled ingress for your cluster, then it will be running the [NGINX ingress-controller](#configuring-ingress). This will route requests from clients external to the cluster, to your services within the cluster, using the URL to locate the desired service. Bodywork can create and manages ingress rules for your services, so that they can be accessed by clients external to the cluster.
