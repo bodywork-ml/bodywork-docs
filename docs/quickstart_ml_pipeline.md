@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
 We recommend that you spend five minutes familiarising yourself with the full contents of [train_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage_1_train_model/train_model.py). When Bodywork runs the stage, it will do so in exactly the same way as if you were to run,
 
-```shell
+```text
 $ python train_model.py
 ```
 
@@ -263,7 +263,7 @@ The most important element is the specification of the workflow DAG, which in th
 
 Firstly, make sure that the [bodywork](https://pypi.org/project/bodywork/) package has been Pip-installed into a local Python environment that is active. Then, make sure that there is a namespace setup for use by bodywork projects - e.g. `ml-pipeline` - by running the following at the command line,
 
-```shell
+```text
 $ bodywork setup-namespace ml-pipeline
 ```
 
@@ -278,7 +278,7 @@ creating service-account=bodywork-jobs-and-deployments in namespace=ml-pipeline
 
 Then, the workflow can be tested by running the workflow-controller locally (to orchestrate remote containers on k8s), using,
 
-```shell
+```text
 $ bodywork workflow \
     --namespace=ml-pipeline \
     https://github.com/bodywork-ml/bodywork-ml-pipeline-project \
@@ -287,19 +287,19 @@ $ bodywork workflow \
 
 Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `ml-pipeline` namespace. The logs from the workflow-controller and the containers nested within each constituent stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `ml-pipeline` namespace, by using the kubectl CLI tool - e.g.,
 
-```shell
+```text
 $ kubectl -n ml-pipeline get all
 ```
 
 Once the workflow has completed, the scoring service deployed within your cluster will be ready for testing. Service deployments are accessible via HTTP from within the cluster - they are not exposed to the public internet, unless you have [installed an ingress controller](kubernetes.md#configuring-ingress) in your cluster. The simplest way to test a service from your local machine, is by using a local proxy server to enable access to your cluster. This can be achieved by issuing the following command,
 
-```shell
+```text
 $ kubectl proxy
 ```
 
 Then in a new shell, you can use the curl tool to test the service. For example,
 
-```shell
+```text
 $ curl http://localhost:8001/api/v1/namespaces/ml-pipeline/services/bodywork-ml-pipeline-project--stage-2-scoring-service/proxy/iris/v1/score \
     --request POST \
     --header "Content-Type: application/json" \
@@ -318,7 +318,7 @@ If successful, you should get the following response,
 
 If an ingress controller is operational in your cluster, then the service can be tested via the public internet using,
 
-```shell
+```text
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/ml-pipeline/bodywork-ml-pipeline-project--stage-2-scoring-service/iris/v1/score \
     --request POST \
     --header "Content-Type: application/json" \
@@ -331,7 +331,7 @@ See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to re
 
 If you're happy with the test results, then you can schedule the workflow-controller to operate remotely on the cluster as a Kubernetes cronjob. To setup the the workflow to run every hour, for example, use the following command,
 
-```shell
+```text
 $ bodywork cronjob create \
     --namespace=ml-pipeline \
     --name=ml-pipeline \
@@ -345,7 +345,7 @@ Each scheduled workflow will attempt to re-run the workflow, end-to-end, as defi
 
 To get the execution history for all `ml-pipeline` jobs use,
 
-```shell
+```text
 $ bodywork cronjob history \
     --namespace=ml-pipeline \
     --name=ml-pipeline
@@ -360,7 +360,7 @@ ml-pipeline-1605214260          2020-11-12 20:51:04+00:00     2020-11-12 20:52:3
 
 Then to stream the logs from any given cronjob run (e.g. to debug and/or monitor for errors), use,
 
-```shell
+```text
 $ bodywork cronjob logs \
     --namespace=ml-pipeline \
     --name=ml-pipeline-1605214260
@@ -370,6 +370,6 @@ $ bodywork cronjob logs \
 
 To clean-up the deployment in its entirety, delete the namespace using kubectl - e.g. by running,
 
-```shell
+```text
 $ kubectl delete ns ml-pipeline
 ```

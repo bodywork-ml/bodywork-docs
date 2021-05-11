@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
 We recommend that you spend five minutes familiarising yourself with the full contents of [score.py](https://github.com/bodywork-ml/bodywork-batch-job-project/blob/master/score_data/score.py). When Bodywork runs the stage, it will do so in the same way as if you were to run,
 
-```shell
+```text
 $ python score.py
 ```
 
@@ -153,7 +153,7 @@ The most important element is the specification of the workflow DAG, which in th
 
 Firstly, make sure that the [bodywork](https://pypi.org/project/bodywork/) package has been Pip-installed into a local Python environment that is active. Then, make sure that there is a namespace setup for use by Bodywork projects - e.g. `bodywork-batch-jobs` - by running the following at the command line,
 
-```shell
+```text
 $ bodywork setup-namespace bodywork-batch-jobs
 ```
 
@@ -168,7 +168,7 @@ creating service-account=bodywork-jobs-and-deployments in namespace=bodywork-bat
 
 Then, the workflow can be tested by running the workflow-controller locally (to orchestrate remote containers on k8s), using,
 
-```shell
+```text
 $ bodywork workflow \
     --namespace=bodywork-batch-jobs \
     https://github.com/bodywork-ml/bodywork-batch-job-project \
@@ -177,7 +177,7 @@ $ bodywork workflow \
 
 Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `bodywork-batch-jobs` namespace. The logs from the workflow-controller and from the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `bodywork-batch-jobs` namespace, by using the kubectl CLI tool - e.g.,
 
-```shell
+```text
 $ kubectl -n bodywork-batch-jobs get all
 ```
 
@@ -185,7 +185,7 @@ $ kubectl -n bodywork-batch-jobs get all
 
 If you're happy with the test results, you can schedule the workflow-controller to operate remotely on the cluster, on a pre-defined schedule. For example, to setup the the workflow to run every hour, use the following command,
 
-```shell
+```text
 $ bodywork cronjob create \
     --namespace=bodywork-batch-jobs \
     --name=score-data \
@@ -199,7 +199,7 @@ Each scheduled workflow will attempt to re-run the batch-job, as defined by the 
 
 To get the execution history for all `score-data` jobs use,
 
-```shell
+```text
 $ bodywork cronjob history \
     --namespace=bodywork-batch-jobs \
     --name=score-data
@@ -214,7 +214,7 @@ score-data-1605214260                   2020-11-12 20:51:04+00:00     2020-11-12
 
 Then to stream the logs from any given cronjob run (e.g. to debug and/or monitor for errors), use,
 
-```shell
+```text
 $ bodywork cronjob logs \
     --namespace=bodywork-batch-jobs \
     --name=score-data-1605214260
@@ -224,6 +224,6 @@ $ bodywork cronjob logs \
 
 To clean-up the deployment in its entirety, delete the namespace using kubectl - e.g. by running,
 
-```shell
+```text
 $ kubectl delete ns bodywork-batch-jobs
 ```

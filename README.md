@@ -20,7 +20,7 @@ The version contained in the `VERSION` file will track the minor version of `bod
 
 To serve the docs locally, install the requirements listed in `requirements.txt` and then run,
 
-```shell
+```text
 $ mkdocs serve
 ```
 
