@@ -224,7 +224,7 @@ Issuing the following command,
 $ kubectl proxy --port 8001
 ```
 
-Starts a proxy server that acts as a gateway to the Kubernetes API. Among other things, this allows you to access services on the cluster that are not exposed to the public internet. For example, with the proxy server operational, browsing to,
+Starts a local proxy server that acts as a gateway to the Kubernetes API. Among other things, this allows you to access services on the cluster that are not exposed to the public internet. For example, with the proxy server operational, browsing to,
 
 ```http
 http://localhost:8001/api/v1/namespaces/NAMESPACE/services/SERVICE_NAME/proxy/
