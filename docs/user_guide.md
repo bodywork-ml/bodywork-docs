@@ -364,10 +364,12 @@ Workflows can be triggered locally from the command line, with the workflow-cont
 For the example project used throughout this user guide, the CLI command for triggering the workflow locally using the `master` branch of the remote Git repository, would be as follows,
 
 ```text
-$ bodywork workflow \
+$ bodywork deployment create \
     --namespace=my-classification-product \
-    https://github.com/my-github-username/my-classification-product \
-    master
+    --name=test-deployment \
+    --git-repo-url=https://github.com/my-github-username/my-classification-product \
+    --git-repo-branch=master \
+    --local-workflow-controller
 ```
 
 ### Testing Service Deployments

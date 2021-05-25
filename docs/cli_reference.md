@@ -74,10 +74,11 @@ $ bodywork deployment create \
     --name=DEPLOYMENT_NAME \
     --git-repo-url=REMOTE_GIT_REPO_URL \
     --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
-    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE
+    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE \
+    --local-workflow-contoller
 ```
 
-Will immediately deploy your project by starting a workflow-controller job in your cluster.
+Will immediately deploy your project by starting a workflow-controller job in your cluster, unless the `--local-workflow-contoller` has been used, in which case this command becomes an alias for the [Run Workflow](user_guide.md#run-workflow) command, and will run the workflow controller locally for easy testing.
 
 ### Get Deployment Workflow Logs
 
