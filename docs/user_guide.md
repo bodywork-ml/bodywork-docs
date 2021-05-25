@@ -535,7 +535,7 @@ $ bodywork deployment delete-job \
     --name=initial-deployment
 ```
 
-As not all clusters are configured to clean-up these jobs up automatically, so the cluster resources allocated to them need to be freed-up manually.
+As not all clusters are configured to clean-up these jobs up automatically, so the cluster resources allocated to them will need to be freed-up manually.
 
 ## Scheduling Workflows
 

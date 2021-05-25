@@ -80,7 +80,7 @@ $ bodywork deployment create \
 
 Will immediately deploy your project by starting a workflow-controller job in your cluster, unless the `--local-workflow-contoller` has been used, in which case this command becomes an alias for the [Run Workflow](user_guide.md#run-workflow) command, and will run the workflow controller locally for easy testing.
 
-### Delete Deployment Jobs
+### Delete Deployment-Jobs
 
 ```text
 $ bodywork deployment delete-job \
@@ -88,7 +88,7 @@ $ bodywork deployment delete-job \
     --name=DEPLOYMENT_NAME
 ```
 
-When a deployment is created, a workflow-controller job is started in your cluster. Not all clusters are configured to clean-up these jobs up automatically, in which case you may have to delete it manually.
+When a deployment is created, a workflow-controller job is started in your cluster. Not all clusters are configured to clean-up these jobs up automatically, in which case you may have to delete them manually.
 
 ### Get Deployment Workflow Logs
 
