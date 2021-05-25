@@ -1,6 +1,6 @@
 # CLI Reference
 
-Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your Kubernetes cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects packaged as Git repositories (e.g. on GitHub). This page is a reference for all Bodywork CLI commands.
+Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your Kubernetes cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects, packaged as Git repositories hosted on either , GitLab, Azure DevOps or BitBucket. This page is a reference for all Bodywork CLI commands.
 
 ## Get Version
 

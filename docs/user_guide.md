@@ -109,7 +109,7 @@ logging:
 
 ![Bodywork ML pipeline](images/ml_pipeline.png)
 
-Bodywork projects must be packaged as Git repositories (e.g. on GitHub). When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and manages the execution of the workflow.
+Bodywork projects must be packaged as Git repositories, hosted on GitHub, GitLab, Azure DevOps or BitBucket. When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and manages the execution of the workflow.
 
 When the workflow-controller executes a stage, it starts a new [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) in your Kubernetes cluster, installs any 3rd party Python package dependencies that might be required, and then runs the chosen Python module.
 
@@ -334,16 +334,16 @@ Will store `USERNAME` and `PASSWORD` within a [Kubernetes secret resource](https
 
 ### Working with Private Git Repositories using SSH
 
-When working with remote Git repositories that are private, Bodywork will attempt to access them via [SSH](https://en.wikipedia.org/wiki/SSH_(Secure_Shell)). For example, to setup SSH access for use with GitHub, see [this article](https://devconnected.com/how-to-setup-ssh-keys-on-github/). This process will result in the creation of a private and public key-pair to use for authenticating with GitHub. The private key must be stored as a Kubernetes secret in the project's namespace, using the following naming convention for the secret name and secret data key,
+When working with remote Git repositories that are private, Bodywork will attempt to access them via [SSH](https://en.wikipedia.org/wiki/SSH_(Secure_Shell)). For example, to setup SSH access for use with GitHub, see [this article](https://devconnected.com/how-to-setup-ssh-keys-on-github/). This process will result in the creation of a private and public key-pair to use for authenticating with your remote Git host. The private key must be stored as a Kubernetes secret in the project's namespace, using the following naming convention for the secret name and secret data key,
 
 ```text
 $ bodywork secret create \
     --namespace=my-classification-product \
-    --name=ssh-github-private-key \
+    --name=ssh-git-private-key \
     --data BODYWORK_GIT_SSH_PRIVATE_KEY=paste_your_private_key_here
 ```
 
-A convenient way to map this variable direct from a private key file, e.g. one stored in `~/.shh/id_rsa`, is to use `BODYWORK_GIT_SSH_PRIVATE_KEY="$(cat ~/.shh/id_rsa)"`.
+A convenient way to assign this variable direct from a private key file, e.g. one stored in `~/.shh/id_rsa`, is to use `BODYWORK_GIT_SSH_PRIVATE_KEY="$(cat ~/.shh/id_rsa)"`.
 
 When executing a workflow defined in a private Git repository, make sure to use the SSH protocol when specifying the `git-repo-url` - e.g. use,
 

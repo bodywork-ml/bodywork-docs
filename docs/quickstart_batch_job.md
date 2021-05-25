@@ -175,7 +175,7 @@ $ bodywork workflow \
     master
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `bodywork-batch-jobs` namespace. The logs from the workflow-controller and from the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `bodywork-batch-jobs` namespace, by using the kubectl CLI tool - e.g.,
+Which will run the workflow defined in the `master` branch of the project's remote Git repository, all within the `bodywork-batch-jobs` namespace. The logs from the workflow-controller and from the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `bodywork-batch-jobs` namespace, by using the Kubectl CLI tool - e.g.,
 
 ```text
 $ kubectl -n bodywork-batch-jobs get all

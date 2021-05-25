@@ -186,7 +186,7 @@ $ bodywork workflow \
     master
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `scoring-service` namespace. The logs from the workflow-controller and the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `scoring-service` namespace, by using the kubectl CLI tool - e.g.,
+Which will run the workflow defined in the `master` branch of the project's remote Git repository, all within the `scoring-service` namespace. The logs from the workflow-controller and the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `scoring-service` namespace, by using the kubectl CLI tool - e.g.,
 
 ```text
 $ kubectl -n scoring-service get all

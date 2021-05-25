@@ -26,7 +26,7 @@ Developing and maintaining these deployment pipelines is time-consuming. If ther
 
 ## Where do I Install Bodywork?
 
-Bodywork is distributed as a Python package that exposes a command line interface for configuring Kubernetes to run Bodywork deployments. It takes just one command to schedule a pipeline hosted on GitHub to run every evening,
+Bodywork is distributed as a Python package that exposes a command line interface for configuring Kubernetes to run Bodywork deployments. It takes just one command to schedule a pipeline to run every evening,
 
 ![Bodywork CLI](images/bodywork_cronjob_create.png)
 
@@ -92,8 +92,8 @@ Before you start exploring what Bodywork can do for you, you will need:
 `Access to a Kubernetes Cluster`
 : Either locally using [minikube](https://minikube.sigs.k8s.io/docs/), or as a managed service from a cloud provider, such as [EKS on AWS](https://aws.amazon.com/eks) or [AKS on Azure](https://azure.microsoft.com/en-us/services/kubernetes-service/).
 
-`A GitHub Account`
-: Currently, we only support public and private repositories hosted on [GitHub](https://github.com). Support for GitLab, BitBucket and Azure DevOps will come later in 2021.
+`An Account with a Git Repo Hosting Service such as GitHub`
+: Currently, we support public and private repositories hosted on [GitHub](https://github.com), [GitLab](https://about.gitlab.com), [Azure DevOps](https://azure.microsoft.com/en-gb/services/devops/) or [BitBucket](https://bitbucket.org/product/).
 
 If you are new to Kubernetes, then please take a look at our guide to [Getting Started with Kubernetes](kubernetes.md#getting-started-with-kubernetes). Familiarity with basic [Kubernetes concepts](https://kubernetes.io/docs/concepts/) and some exposure to the [Kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) command-line tool makes life easier, but are not essential.
 
