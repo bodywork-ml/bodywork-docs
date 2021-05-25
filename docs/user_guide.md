@@ -515,6 +515,16 @@ $ bodywork deployment logs ... >> log.txt
 
 To append to the existing contents of `log.txt`.
 
+After your deployment has completed, you can clean-up the job used to run the remote workflow-controller using,
+
+```text
+$ bodywork deployment delete-job \
+    --namespace=my-classification-product \
+    --name=initial-deployment
+```
+
+As not all clusters are configured to clean-up these jobs up automatically, so the cluster resources allocated to them need to be freed-up manually.
+
 ## Scheduling Workflows
 
 If your workflows are executing successfully, then you can schedule the workflow-controller to operate remotely on the cluster as a [Kubernetes cronjob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/). For example, issuing the following command from the CLI,
