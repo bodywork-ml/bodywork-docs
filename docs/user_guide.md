@@ -340,8 +340,10 @@ When working with remote Git repositories that are private, Bodywork will attemp
 $ bodywork secret create \
     --namespace=my-classification-product \
     --name=ssh-github-private-key \
-    --data BODYWORK_GITHUB_SSH_PRIVATE_KEY=paste_your_private_key_here
+    --data BODYWORK_GIT_SSH_PRIVATE_KEY=paste_your_private_key_here
 ```
+
+A convenient way to map this variable direct from a private key file, e.g. one stored in `~/.shh/id_rsa`, is to use `BODYWORK_GIT_SSH_PRIVATE_KEY="$(cat ~/.shh/id_rsa)"`.
 
 When executing a workflow defined in a private Git repository, make sure to use the SSH protocol when specifying the `git-repo-url` - e.g. use,
 
