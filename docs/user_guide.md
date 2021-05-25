@@ -357,6 +357,18 @@ As opposed to,
 https://github.com/my-github-username/my-classification-product
 ```
 
+## Accessing the Project's Git Commit Hash for Tagging ML Artefacts
+
+The Git commit hash of your project can be accessed from within any Bodywork container, via the `GIT_COMMIT_HASH` environment variable. This allows you to tag any artefacts produced by your pipelines, such as datasets and trained models, with the precise version of the pipeline used to create them. For example,
+
+```python
+import os
+
+git_hash = os.getenv('GIT_COMMIT_HASH')
+model_filename = f'my-classifier--pipeline={git_hash}.pkl'
+save_model(model, model_filename)
+```
+
 ## Testing Workflows Locally
 
 Workflows can be triggered locally from the command line, with the workflow-controller logs streamed to your terminal. In this mode of operation, the workflow-controller is operating on your local machine, but it is still orchestrating containers on Kubernetes remotely. It will still clone your project from the specified branch of the Bodywork project's Git repository, and delete it when finished.
