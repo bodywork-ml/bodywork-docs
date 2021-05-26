@@ -577,3 +577,7 @@ $ bodywork cronjob logs \
 ```
 
 Would stream logs directly to your terminal, from the workflow execution attempt labelled `my-classification-product-1605214260`, in precisely the same way as was described for the `bodywork deployment logs` command [described above](#deploying-workflows).
+
+### Bodywork Analytics
+
+We collect basic usage statistics to help us understand adoption of Bodywork as a deployment tool. Every time you run a workflow, Bodywork will ping a remote server to increment a counter (nothing more). We do not store any data about you or your workflows (not even your IP address). You can see the code for this [here](https://github.com/bodywork-ml/bodywork-core/blob/bae4256e4b122f0aee43cfe4f11ceafc6150768d/src/bodywork/workflow_execution.py#L404). If you wish to disable this, then set `project.usage_stats: false` in your `bodywork.yaml` file.
