@@ -530,7 +530,7 @@ To append to the existing contents of `log.txt`.
 After your deployment has completed, you can clean-up the job used to run the remote workflow-controller using,
 
 ```text
-$ bodywork deployment delete-job \
+$ bodywork deployment delete_job \
     --namespace=my-classification-product \
     --name=initial-deployment
 ```
