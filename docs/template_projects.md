@@ -10,7 +10,7 @@ To accelerate the development of your projects, we maintain a set of Bodywork de
 
 ## Working with GitHub Template Repositories
 
-Bodywork deployment templates are [GitHub template repositories](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) that can be automatically cloned into your own GitHub account by clicking the `Use this template` button shown below.
+Bodywork deployment templates are [GitHub template repositories](https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) that can be automatically cloned into your own GitHub account by clicking the `Use this template` button shown below. If you don't use GitHub as your remote Git repo hosting service, then you will have to perform this operation manually.
 
 ![GitHub template project](images/github_template_project.png)
 

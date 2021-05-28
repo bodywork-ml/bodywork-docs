@@ -1,6 +1,6 @@
 # CLI Reference
 
-Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your Kubernetes cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects packaged as Git repositories (e.g. on GitHub). This page is a reference for all Bodywork CLI commands.
+Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your Kubernetes cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects, packaged as Git repositories hosted on either, GitHub, GitLab, Azure DevOps or BitBucket. This page is a reference for all Bodywork CLI commands.
 
 ## Get Version
 
@@ -74,10 +74,21 @@ $ bodywork deployment create \
     --name=DEPLOYMENT_NAME \
     --git-repo-url=REMOTE_GIT_REPO_URL \
     --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
-    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE
+    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE \
+    --local-workflow-contoller
 ```
 
-Will immediately deploy your project by starting a workflow-controller job in your cluster.
+Will immediately deploy your project by starting a workflow-controller job in your cluster, unless the `--local-workflow-contoller` has been used, in which case this command becomes an alias for the [Run Workflow](user_guide.md#run-workflow) command, and will run the workflow controller locally for easy testing.
+
+### Delete Deployment-Jobs
+
+```text
+$ bodywork deployment delete_job \
+    --namespace=YOUR_NAMESPACE \
+    --name=DEPLOYMENT_NAME
+```
+
+When a deployment is created, a workflow-controller job is started in your cluster. Not all clusters are configured to clean-up these jobs up automatically, in which case you may have to delete them manually.
 
 ### Get Deployment Workflow Logs
 

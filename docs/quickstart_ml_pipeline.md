@@ -279,13 +279,14 @@ creating service-account=bodywork-jobs-and-deployments in namespace=ml-pipeline
 Then, the workflow can be tested by running the workflow-controller locally (to orchestrate remote containers on k8s), using,
 
 ```text
-$ bodywork workflow \
+$ bodywork deployment create \
     --namespace=ml-pipeline \
-    https://github.com/bodywork-ml/bodywork-ml-pipeline-project \
-    master
+    --name=test-deployment \
+    --git-repo-url=https://github.com/bodywork-ml/bodywork-ml-pipeline-project \
+    --git-repo-branch=master
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote GitHub repository, all within the `ml-pipeline` namespace. The logs from the workflow-controller and the containers nested within each constituent stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `ml-pipeline` namespace, by using the kubectl CLI tool - e.g.,
+Which will run the workflow defined in the `master` branch of the project's remote Git repository, all within the `ml-pipeline` namespace. The logs from the workflow-controller and the containers nested within each constituent stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `ml-pipeline` namespace, by using the kubectl CLI tool - e.g.,
 
 ```text
 $ kubectl -n ml-pipeline get all

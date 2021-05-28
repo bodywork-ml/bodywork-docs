@@ -1,6 +1,6 @@
 # Installing Bodywork
 
-Bodywork is distributed as a Python package that exposes a Command Line Interface (CLI) for interacting with your Kubernetes cluster. The Bodywork CLI configures your cluster to run [pre-built Bodywork containers](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core), that clone your project from its Git repository and then deploy it.
+Bodywork is distributed as a Python package that exposes a Command Line Interface (CLI) for interacting with your Kubernetes cluster. The Bodywork CLI configures your cluster to run [pre-built Bodywork containers](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core), that clone your project from its remote Git repository and then deploy it.
 
 Bodywork can be downloaded and installed from PyPI with the following shell command,
 

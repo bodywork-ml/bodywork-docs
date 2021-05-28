@@ -25,7 +25,7 @@ When you are ready to deploy to the cloud, then the easiest path is via a manage
 
 ## Required Kubernetes Version
 
-Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (12.0.1) has full compatibility with Kubernetes 1.16. We recommend that you also use Kubernetes 1.16, but in-practice Bodywork will work with other versions - more information can be found [here](https://github.com/kubernetes-client/python#compatibility). Bodywork is tested against Kubernetes 1.16 running on [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/).
+Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (17.17.0) has full compatibility with Kubernetes 1.17. We recommend that you also use Kubernetes 1.17, but in-practice Bodywork will work with other versions - more information can be found [here](https://github.com/kubernetes-client/python#compatibility). Bodywork is tested against Kubernetes 1.17 running on [Amazon Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/).
 
 ## Installing the Kubectl Tool
 
@@ -78,7 +78,7 @@ If you’re running on Windows or Linux, then follow the appropriate [installati
 Once you have Minikube installed, start a cluster using the latest version of Kubernetes that Bodywork supports,
 
 ```text
-$ minikube start --kubernetes-version=v1.16.15
+$ minikube start --kubernetes-version=v1.17.17
 ```
 
 And then enable ingress, so we can route HTTP requests to services deployed using Bodywork.
@@ -95,7 +95,7 @@ $ minikube profile list
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 | Profile  | VM Driver | Runtime |      IP      | Port | Version  | Status  | Nodes |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
-| minikube | hyperkit  | docker  | 192.168.64.5 | 8443 | v1.16.15 | Running |     1 |
+| minikube | hyperkit  | docker  | 192.168.64.5 | 8443 | v1.17.17 | Running |     1 |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 ```
 

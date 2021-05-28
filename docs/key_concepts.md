@@ -42,7 +42,7 @@ Most ML projects can be described by one model-training stage and one service de
 
 ## Deployment from Git Repos
 
-Bodywork requires projects to be stored and distributed as Git repositories - e.g. hosted on GitHub. When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses configuration data provided in a `bodywork.yaml` file and then manages the execution of the workflow, creating new containers for each stage.
+Bodywork requires projects to be stored and distributed as Git repositories, hosted on GitHub, GitLab, Azure DevOps or BitBucket. When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses configuration data provided in a `bodywork.yaml` file and then manages the execution of the workflow, creating new containers for each stage.
 
 At no point is there any need to build Docker images and push them to a container registry. This simplifies the [CI/CD](https://en.wikipedia.org/wiki/CI/CD) pipeline for your project, so that you can focus on the aspects (e.g. tests) that are more relevant to your machine learning task.
 
@@ -69,4 +69,4 @@ This project can then be configured to run on a schedule with one command,
 ![schedule ML deployments](images/key_concept_schedule_cli.png)
 
 !!! info "Working with private Git repositories"
-    The example above assumes the GitHub repository is public - for more information on working with private repositories, please see [here](user_guide.md#working-with-private-git-repositories-using-ssh).
+    The example above assumes the Git repository is public - for more information on working with private repositories, please see [here](user_guide.md#working-with-private-git-repositories-using-ssh).

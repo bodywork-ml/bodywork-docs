@@ -109,7 +109,7 @@ logging:
 
 ![Bodywork ML pipeline](images/ml_pipeline.png)
 
-Bodywork projects must be packaged as Git repositories (e.g. on GitHub). When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and manages the execution of the workflow.
+Bodywork projects must be packaged as Git repositories, hosted on GitHub, GitLab, Azure DevOps or BitBucket. When a deployment is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and manages the execution of the workflow.
 
 When the workflow-controller executes a stage, it starts a new [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core) in your Kubernetes cluster, installs any 3rd party Python package dependencies that might be required, and then runs the chosen Python module.
 
@@ -334,14 +334,16 @@ Will store `USERNAME` and `PASSWORD` within a [Kubernetes secret resource](https
 
 ### Working with Private Git Repositories using SSH
 
-When working with remote Git repositories that are private, Bodywork will attempt to access them via [SSH](https://en.wikipedia.org/wiki/SSH_(Secure_Shell)). For example, to setup SSH access for use with GitHub, see [this article](https://devconnected.com/how-to-setup-ssh-keys-on-github/). This process will result in the creation of a private and public key-pair to use for authenticating with GitHub. The private key must be stored as a Kubernetes secret in the project's namespace, using the following naming convention for the secret name and secret data key,
+When working with remote Git repositories that are private, Bodywork will attempt to access them via [SSH](https://en.wikipedia.org/wiki/SSH_(Secure_Shell)). For example, to setup SSH access for use with GitHub, see [this article](https://devconnected.com/how-to-setup-ssh-keys-on-github/). This process will result in the creation of a private and public key-pair to use for authenticating with your remote Git host. The private key must be stored as a Kubernetes secret in the project's namespace, using the following naming convention for the secret name and secret data key,
 
 ```text
 $ bodywork secret create \
     --namespace=my-classification-product \
-    --name=ssh-github-private-key \
-    --data BODYWORK_GITHUB_SSH_PRIVATE_KEY=paste_your_private_key_here
+    --name=ssh-git-private-key \
+    --data BODYWORK_GIT_SSH_PRIVATE_KEY=paste_your_private_key_here
 ```
+
+A convenient way to assign this variable direct from a private key file, e.g. one stored in `~/.shh/id_rsa`, is to use `BODYWORK_GIT_SSH_PRIVATE_KEY="$(cat ~/.shh/id_rsa)"`.
 
 When executing a workflow defined in a private Git repository, make sure to use the SSH protocol when specifying the `git-repo-url` - e.g. use,
 
@@ -355,6 +357,18 @@ As opposed to,
 https://github.com/my-github-username/my-classification-product
 ```
 
+## Accessing the Project's Git Commit Hash for Tagging ML Artefacts
+
+The Git commit hash of your project can be accessed from within any Bodywork container, via the `GIT_COMMIT_HASH` environment variable. This allows you to tag any artefacts produced by your pipelines, such as datasets and trained models, with the precise version of the pipeline used to create them. For example,
+
+```python
+import os
+
+git_hash = os.getenv('GIT_COMMIT_HASH')
+model_filename = f'my-classifier--pipeline={git_hash}.pkl'
+save_model(model, model_filename)
+```
+
 ## Testing Workflows Locally
 
 Workflows can be triggered locally from the command line, with the workflow-controller logs streamed to your terminal. In this mode of operation, the workflow-controller is operating on your local machine, but it is still orchestrating containers on Kubernetes remotely. It will still clone your project from the specified branch of the Bodywork project's Git repository, and delete it when finished.
@@ -362,10 +376,12 @@ Workflows can be triggered locally from the command line, with the workflow-cont
 For the example project used throughout this user guide, the CLI command for triggering the workflow locally using the `master` branch of the remote Git repository, would be as follows,
 
 ```text
-$ bodywork workflow \
+$ bodywork deployment create \
     --namespace=my-classification-product \
-    https://github.com/my-github-username/my-classification-product \
-    master
+    --name=test-deployment \
+    --git-repo-url=https://github.com/my-github-username/my-classification-product \
+    --git-repo-branch=master \
+    --local-workflow-controller
 ```
 
 ### Testing Service Deployments
@@ -511,6 +527,16 @@ $ bodywork deployment logs ... >> log.txt
 
 To append to the existing contents of `log.txt`.
 
+After your deployment has completed, you can clean-up the job used to run the remote workflow-controller using,
+
+```text
+$ bodywork deployment delete_job \
+    --namespace=my-classification-product \
+    --name=initial-deployment
+```
+
+As not all clusters are configured to clean-up these jobs up automatically, so the cluster resources allocated to them will need to be freed-up manually.
+
 ## Scheduling Workflows
 
 If your workflows are executing successfully, then you can schedule the workflow-controller to operate remotely on the cluster as a [Kubernetes cronjob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/). For example, issuing the following command from the CLI,
@@ -551,3 +577,7 @@ $ bodywork cronjob logs \
 ```
 
 Would stream logs directly to your terminal, from the workflow execution attempt labelled `my-classification-product-1605214260`, in precisely the same way as was described for the `bodywork deployment logs` command [described above](#deploying-workflows).
+
+### Bodywork Analytics
+
+We collect basic usage statistics to help us understand adoption of Bodywork as a deployment tool. Every time you run a workflow, Bodywork will ping a remote server to increment a counter (nothing more). We do not store any data about you or your workflows (not even your IP address). You can see the code for this [here](https://github.com/bodywork-ml/bodywork-core/blob/bae4256e4b122f0aee43cfe4f11ceafc6150768d/src/bodywork/workflow_execution.py#L404). If you wish to disable this, then set `project.usage_stats: false` in your `bodywork.yaml` file.
