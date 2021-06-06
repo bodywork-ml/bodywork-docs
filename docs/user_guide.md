@@ -148,7 +148,7 @@ Each configuration parameter is used as follows:
 : A description of the workflow structure - the stages to include in each step of the workflow - this will be discussed in more detail below.
 
 `run_on_failure`
-: An optional [batch stage](#batch-stages) to be run only after the workflow fails to execute. Within this stage's module you could trigger a webhook for [posting to Slack](https://api.slack.com/tutorials/slack-apps-hello-world), use the Python standard library to [send an e-mail](https://realpython.com/python-send-email/), or use the Python client for your company's chosen incident response platform (e.g. [PagerDuty](https://github.com/PagerDuty/pdpyras)).
+: An optional [batch stage](#batch-stages) to be run only after the workflow fails to complete successfully - i.e. when one of its stages fails. Within this stage's module you could trigger a webhook for [posting to Slack](https://api.slack.com/tutorials/slack-apps-hello-world), use the Python standard library to [send an e-mail](https://realpython.com/python-send-email/), or use the Python client for your company's chosen incident response platform (e.g. [PagerDuty](https://github.com/PagerDuty/pdpyras)). Note, that if Bodywork is unable to start the workflow for any reason (e.g. your cluster cannot access the Bodywork container image or your chosen namespace becomes unavailable), then it will **not** be able to run the chosen on-failure stage.
 
 ### Defining Workflow DAGs
 
