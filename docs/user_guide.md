@@ -25,6 +25,7 @@ root/
  |-- model_scoring_service/
      |-- model_scoring_app.py
      |...
+ |-- raise_alerts.py
  |-- bodywork.yaml
 ```
 
@@ -36,6 +37,7 @@ project:
   name: my-classification-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: prepare_data >> train_svm, train_random_forest >> choose_model >> model_scoring_service
+  run_on_failure: send_notifications
 stages:
   prepare_data:
     executable_module_path: prepare_data/prepare_data.py
@@ -101,6 +103,15 @@ stages:
       replicas: 2
       port: 5000
       ingress: true
+  send_notifications:
+    executable_module_path: raise_alerts.py
+    requirements:
+      - requests==2.22.0
+    cpu_request: 0.5
+    memory_request_mb: 100
+    batch:
+      max_completion_time_seconds: 30
+      retries: 1
 logging:
   log_level: INFO
 ```
@@ -122,6 +133,7 @@ project:
   name: my-classification-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: prepare_data >> train_svm, train_random_forest >> choose_model >> model_scoring_service
+  run_on_failure: send_notifications
 ```
 
 Each configuration parameter is used as follows:
@@ -134,6 +146,9 @@ Each configuration parameter is used as follows:
 
 `DAG`
 : A description of the workflow structure - the stages to include in each step of the workflow - this will be discussed in more detail below.
+
+`run_on_failure`
+: An optional [batch stage](#batch-stages) to be run only after the workflow fails to complete successfully - i.e. when one of its stages fails. Within this stage's module you could trigger a webhook for [posting to Slack](https://api.slack.com/tutorials/slack-apps-hello-world), use the Python standard library to [send an e-mail](https://realpython.com/python-send-email/), or use the Python client for your company's chosen incident response platform (e.g. [PagerDuty](https://github.com/PagerDuty/pdpyras)). Note, that if Bodywork is unable to start the workflow for any reason (e.g. your cluster cannot access the Bodywork container image or your chosen namespace becomes unavailable), then it will **not** be able to run the chosen on-failure stage.
 
 ### Defining Workflow DAGs
 
@@ -246,7 +261,7 @@ Where:
 
 : `http://YOUR_CLUSTERS_EXTERNAL_IP/NAMESPACE/SERVICE_STAGE_NAME`
 
-: See [Configuring Ingress](kubernetes.md##configuring-ingress) for more information on exposing services to external HTTP requests.
+: See [Configuring Ingress](kubernetes.md#configuring-ingress) for more information on exposing services to external HTTP requests.
 
 ### Injecting Secrets
 
