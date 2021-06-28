@@ -10,6 +10,7 @@ nav:
   - Key Concepts: key_concepts.md
   - User Guide: user_guide.md
   - CLI Reference: cli_reference.md
+  - CI/CD for ML: cicd_for_ml.md
   - Deployment Templates: template_projects.md
   - Licensing: licensing.md
   - Contact: contact.md
