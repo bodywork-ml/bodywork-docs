@@ -22,7 +22,7 @@ We **strongly** recommend that you find five minutes to read about the [key conc
 
 The ML problem we have chosen to use for this example, is the classification of iris plants into one of their three sub-species, given their physical dimensions. It uses the [iris plants dataset](https://scikit-learn.org/stable/datasets/index.html#iris-dataset) and is an example of a multi-class classification task.
 
-The Jupyter notebook titled [ml_prototype_work.ipynb](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/ml_prototype_work.ipynb) and found in the root of the [project's GitHub repository](https://github.com/bodywork-ml/bodywork-ml-pipeline-project), documents the trivial ML workflow used to arrive at a proposed solution to this task. It trains a Decision Tree classifier and persists the trained model to cloud storage. Take five minutes to read through it.
+The Jupyter notebook titled [ml_prototype_work.ipynb](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/notebooks/ml_prototype_work.ipynb), documents the trivial ML workflow used to arrive at a proposed solution to this task. It trains a Decision Tree classifier and persists the trained model to cloud storage. Take five minutes to read through it.
 
 ## The MLOps Task
 
@@ -32,9 +32,10 @@ The Bodywork project for this multi-stage workflow is packaged as a [GitHub repo
 
 ```text
 root/
- |-- stage_1_train_model/
+ |-- notebooks/
+     |-- ml_prototype_work.ipynb
+ |-- pipeline/
      |-- train_model.py
- |-- stage_2_serve_model/
      |-- serve_model.py
  |-- bodywork.yaml
 ```
@@ -49,7 +50,7 @@ project:
   DAG: stage_1_train_model >> stage_2_scoring_service
 stages:
   stage_1_train_model:
-    executable_module_path: stage_1_train_model/train_model.py
+    executable_module_path: pipeline/train_model.py
     requirements:
       - boto3==1.16.15
       - joblib==0.17.0
@@ -61,7 +62,7 @@ stages:
       max_completion_time_seconds: 30
       retries: 2
   stage_2_scoring_service:
-    executable_module_path: stage_2_scoring_service/serve_model.py
+    executable_module_path: pipeline/serve_model.py
     requirements:
       - Flask==1.1.2
       - joblib==0.17.0
@@ -121,7 +122,7 @@ if __name__ == '__main__':
     main()
 ```
 
-We recommend that you spend five minutes familiarising yourself with the full contents of [train_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage_1_train_model/train_model.py). When Bodywork runs the stage, it will do so in exactly the same way as if you were to run,
+We recommend that you spend five minutes familiarising yourself with the full contents of [train_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/pipeline/train_model.py). When Bodywork runs the stage, it will do so in exactly the same way as if you were to run,
 
 ```text
 $ python train_model.py
@@ -210,7 +211,7 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
 ```
 
-We recommend that you spend five minutes familiarising yourself with the full contents of [serve_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/stage_2_scoring_service/serve_model.py). When Bodywork runs the stage, it will start the server defined by `app` and expose the `/iris/v1/score` route that is being handled by `score()`. Note, that this process has no scheduled end and the stage will be kept up-and-running until it is re-deployed or [deleted](user_guide.md#deleting-redundant-service-deployments).
+We recommend that you spend five minutes familiarising yourself with the full contents of [serve_model.py](https://github.com/bodywork-ml/bodywork-ml-pipeline-project/blob/master/pipeline/serve_model.py). When Bodywork runs the stage, it will start the server defined by `app` and expose the `/iris/v1/score` route that is being handled by `score()`. Note, that this process has no scheduled end and the stage will be kept up-and-running until it is re-deployed or [deleted](user_guide.md#deleting-redundant-service-deployments).
 
 The `stages.stage_2_scoring_service.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `serve_model.py` module. In this example we have,
 
@@ -283,10 +284,11 @@ $ bodywork deployment create \
     --namespace=ml-pipeline \
     --name=test-deployment \
     --git-repo-url=https://github.com/bodywork-ml/bodywork-ml-pipeline-project \
-    --git-repo-branch=master
+    --git-repo-branch=master \
+    --local-workflow-controller
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote Git repository, all within the `ml-pipeline` namespace. The logs from the workflow-controller and the containers nested within each constituent stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `ml-pipeline` namespace, by using the kubectl CLI tool - e.g.,
+Which will run the workflow defined in the `master` branch of the project's remote Git repository, all within the `ml-pipeline` namespace. The logs from the workflow-controller and the containers nested within each constituent stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `ml-pipeline` namespace, by using the Kubectl CLI tool - e.g.,
 
 ```text
 $ kubectl -n ml-pipeline get all
