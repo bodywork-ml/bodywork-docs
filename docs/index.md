@@ -54,7 +54,7 @@ Because Bodywork can run deployments on a schedule, every time cloning the lates
 
 ![CICD for machine learning](images/cicd_with_bodywork.png)
 
-This is the [GitOps](https://www.gitops.tech) pattern for cloud native continuous delivery.
+This is the [GitOps](https://www.gitops.tech) pattern for cloud native continuous delivery - see [CI/CD for ML](cicd_for_ml.md) for the details.
 
 ## Key Features
 
