@@ -215,7 +215,7 @@ An example `batch` stage configuration for the `prepare_data` stage could be as 
 
 ```yaml
 stages:
-  model_scoring_service:
+  prepare_data:
     ...
     batch:
       max_completion_time_seconds: 30
