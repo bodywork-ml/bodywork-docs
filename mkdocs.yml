@@ -5,8 +5,8 @@ repo_name: bodywork/bodywork-core
 docs_dir: docs
 nav:
   - Overview: index.md
-  - Installing Bodywork: installation.md
-  - Setting-up Kubernetes: kubernetes.md
+  - Install Bodywork: installation.md
+  - Setup Kubernetes: kubernetes.md
   - Key Concepts: key_concepts.md
   - User Guide: user_guide.md
   - CLI Reference: cli_reference.md
