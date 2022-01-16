@@ -45,7 +45,7 @@ Commands:
 
 ## Required Python Version
 
-Bodywork is developed and tested using Python 3.9. We recommend that your pipelines are also developed and tested using Python 3.9, but they are likely to work with other versions.
+Bodywork is developed and tested using Python 3.9. We recommend that your pipelines are also developed and tested using Python 3.9.
 
 ## Required Operating System
 
