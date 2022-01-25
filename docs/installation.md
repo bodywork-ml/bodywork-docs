@@ -47,6 +47,6 @@ Commands:
 
 Bodywork is developed and tested using Python 3.9. We recommend that your pipelines are also developed and tested using Python 3.9.
 
-## Required Operating System
+## Required operating System
 
 The Bodywork CLI has been developed for MacOS, Linux and Windows operating systems.

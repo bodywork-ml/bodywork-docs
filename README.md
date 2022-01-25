@@ -10,7 +10,7 @@
 
 ---
 
-This repository contains the documentation for Bodywork. It has been built using [MkDocs](https://www.mkdocs.org) with the [Material](https://squidfunk.github.io/mkdocs-material/) theme. 
+This repository contains the documentation for Bodywork. It has been built using [MkDocs](https://www.mkdocs.org) with the [Material](https://squidfunk.github.io/mkdocs-material/) theme.
 
 ## Versioning
 
