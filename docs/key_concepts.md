@@ -22,7 +22,7 @@ A **step** is a collection of one or more stages that can be run concurrently, s
 
 A **workflow** is an ordered collection of one or more steps, that are executed sequentially. A step is only executed after all of the stages in the previous step have completed successfully. A workflow can be represented as a [Directed Acyclic Graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) and will form the basis of all your pipelines.
 
-## Example: Single stage Job
+## Example: Single Stage Job
 
 ![batch stage](images/batch_stage.png)
 
