@@ -4,7 +4,7 @@
 <img src="images/bodywork_logo.png" alt="Bodywork logo">
 </div>
 
-Bodywork is a command line tool that deploys ML pipelines to [Kubernetes](https://en.wikipedia.org/wiki/Kubernetes). It takes care of everything to do with containers and orchestration, so that you don't have to.
+Bodywork is a command line tool that deploys machine learning pipelines to [Kubernetes](https://en.wikipedia.org/wiki/Kubernetes). It takes care of everything to do with containers and orchestration, so that you don't have to.
 
 ## Who is this for?
 

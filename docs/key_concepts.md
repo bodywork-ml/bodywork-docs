@@ -2,6 +2,8 @@
 
 ![deployment workflow](images/stages_steps_workflows.png)
 
+A machine learning pipeline is a series of defined stages (i.e. a workflow), taken to develop and deploy machine learning models.
+
 ## Stages
 
 A stage is an executable Python module or Jupyter notebook, executed within its own [Bodywork container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core), on Kubernetes. There are two different types of stage:
@@ -22,19 +24,23 @@ A **step** is a collection of one or more stages that can be run concurrently, s
 
 A **workflow** is an ordered collection of one or more steps, that are executed sequentially. A step is only executed after all of the stages in the previous step have completed successfully. A workflow can be represented as a [Directed Acyclic Graph (DAG)](https://en.wikipedia.org/wiki/Directed_acyclic_graph) and will form the basis of all your pipelines.
 
-## Example: Single Stage Job
+## Examples
+
+Common tasks realised with Bodywork pipelines.
+
+### Batch Workload
 
 ![batch stage](images/batch_stage.png)
 
-Very often we just need to schedule a simple batch job. Bodywork handles this scenario as a workflow consisting of a single batch stage, running within a single step.
+Very often we just need to schedule a simple batch job - e.g., to train a model or score a dataset with a pre-trained model. Bodywork handles this scenario as a workflow consisting of a single batch stage, running within a single step.
 
-## Example: Serve Model
+### Deploying a Model
 
 ![service stage](images/service_stage.png)
 
 Sometimes models are trained off-line, or on external platforms, and all that's required is to deploy a service that exposes it via HTTP. Bodywork handles this scenario as a workflow consisting of a single service stage, running within a single step.
 
-## Example: Continuous Training
+### Continuous Training Pipeline
 
 ![train-and-serve ML pipeline](images/train_and_serve.png)
 
