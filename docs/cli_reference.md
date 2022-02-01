@@ -1,6 +1,8 @@
 # CLI Reference
 
-Bodywork is distributed as a Python 3 package that exposes a CLI for interacting with your Kubernetes cluster. Using the Bodywork CLI you can deploy Bodywork-compatible ML projects, packaged as Git repositories hosted on either, GitHub, GitLab, Azure DevOps or BitBucket. This page is a reference for all Bodywork CLI commands.
+Bodywork CLI commands for managing ML pipelines on Kubernetes.
+
+---
 
 ## Get Version
 
@@ -10,99 +12,113 @@ $ bodywork --version
 
 Prints the Bodywork package version to stdout.
 
+---
+
 ## Validate Configuration File
 
-The `bodywork.yaml` file can be checked for errors by issuing the following command from the CLI,
+The `bodywork.yaml` file can be checked for errors using,
 
 ```text
-$ bodywork validate --check-files
+$ bodywork validate
 ```
 
-The optional `--check-files` flag will check if all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located. This command assumes that `bodywork.yaml` is in the current working directory - if this is not the case, use the `--file` option to specify the path of `bodywork.yaml`. Validation errors are printed to stdout.
+**Options:**
 
-## Configure Namespace
+`--check-files`
+: Check if all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located. This command assumes that `bodywork.yaml` is in the current working directory - if this is not the case, use the `--file` option to specify the path of `bodywork.yaml`. Validation errors are printed to stdout.
+
+---
+
+## Configure Cluster
 
 ```text
-$ bodywork setup-namespace YOUR_NAMESPACE
+$ bodywork configure-cluster
 ```
 
-Create and prepare a Kubernetes namespace for running Bodywork workflows - see [Preparing a Namespace for use with Bodywork](user_guide/#preparing-a-namespace-for-use-with-bodywork) for more information. This command will also work with namespaces created by other means - e.g. `kubectl create ns YOUR_NAMESPACE` - where it will not seek to recreate the existing namespace, only to ensure that it is correctly configured.
+Prepare your Kubernetes cluster for use with Bodywork. Creates a namespace, together with service accounts and roles for managing pipeline orchestration.
 
-## Run Workflow
+---
+
+## Deploying Pipelines
+
+Orchestrate stages on Kubernetes that run ML workloads and create ML services.
+
+### Create Deployment
 
 ```text
-$ bodywork workflow \
-    --namespace=YOUR_NAMESPACE \
-    REMOTE_GIT_REPO_URL \
-    REMOTE_GIT_REPO_BRANCH
+$ bodywork create deployment REMOTE_GIT_REPO_URL REMOTE_GIT_REPO_BRANCH
 ```
 
-Clones the chosen branch of a Git repository containing a Bodywork ML project and then executes the workflow configured within it. This will start a Bodywork workflow-controller wherever the command is called. If you are working with private remote repositories you will need to use the SSH protocol and ensure that the appropriate private-key is available within a secret - see [Working with Private Git Repositories using SSH](user_guide.md#working-with-private-git-repositories-using-ssh) for more information.
+Deploy a pipeline to Kubernetes.
 
-## Run Stage
+**Arguments:**
 
-```text
-$ bodywork stage \
-    REMOTE_GIT_REPO_URL \
-    REMOTE_GIT_REPO_BRANCH \
-    STAGE_NAME
-```
+`REMOTE_GIT_REPO_URL`
+: Location of the Git repository that contains the pipeline's codebase.
 
-Clones the chosen branch of a Git repository containing a Bodywork ML project and then executes the named stage. This is equivalent to installing all the 3rd party Python package requirements specified in the stage's `requirement.txt` file, and then executing `python NAME_OF_EXECUTABLE_PYTHON_MODULE.py` as defined for the stage in `bodywork.yaml`. See [Configuring Stages](user_guide.md#configuring-stages) for more information. The Bodywork stage-runner will be started wherever the command is called.
+`REMOTE_GIT_REPO_BRANCH`
+: Branch of Git repository to deploy.
 
-!!! warning ""
-    This command is intended for use by Bodywork containers and it is not recommended for use during Bodywork project development on your local machine.
+**Options:**
 
-## Manage Deployments
-
-A deployment is defined as a workflow-controller running as a job within the cluster (as opposed to a workflow-controller running locally). The workflow-controller deploys projects by executing the workflow defined in the project's DAG.
+`--retries`
+: The number of times to retry the deployment, should any stage fail.
 
 ### Get Deployments
 
 ```text
-$ bodywork deployment display \
-    --namespace=YOUR_NAMESPACE
+$ bodywork get deployments PIPELINE_NAME SERVICE_NAME
 ```
 
-Will list all workflow-controller jobs that have run within `YOUR_NAMESPACE`, whether or not they have been successful. All workflow-controller jobs are deleted after they have been in a completed state for 15 minutes.
+Get information on pipelines and the service stages created by them. If no options are specified, then a list of all pipelines with active service stages will be returned.
 
-### Create Deployments
+**Arguments:**
+
+`PIPELINE_NAME`
+: (optional) List summary information on all active service stages associated with a pipeline. A pipeline's name is defined in `bodywork.yaml`.
+
+`SERVICE_NAME`
+: (optional) List detailed information for a single service deployed by a pipeline. 
+
+### Update Deployment
 
 ```text
-$ bodywork deployment create \
-    --namespace=YOUR_NAMESPACE \
-    --name=DEPLOYMENT_NAME \
-    --git-repo-url=REMOTE_GIT_REPO_URL \
-    --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
-    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE \
-    --local-workflow-contoller
+$ bodywork update deployment REMOTE_GIT_REPO_URL REMOTE_GIT_REPO_BRANCH
 ```
 
-Will immediately deploy your project by starting a workflow-controller job in your cluster, unless the `--local-workflow-contoller` has been used, in which case this command becomes an alias for the [Run Workflow](user_guide.md#run-workflow) command, and will run the workflow controller locally for easy testing.
+Redeploy a pipeline to Kubernetes.
 
-### Delete Deployment-Jobs
+**Arguments:**
+
+`REMOTE_GIT_REPO_URL`
+: Location of the Git repository that contains the pipeline's codebase.
+
+`REMOTE_GIT_REPO_BRANCH`
+: Branch of Git repository to deploy.
+
+**Options:**
+
+`--retries`
+: The number of times to retry the deployment, should any stage fail.
+
+### Delete Deployment
 
 ```text
-$ bodywork deployment delete_job \
-    --namespace=YOUR_NAMESPACE \
-    --name=DEPLOYMENT_NAME
+$ bodywork delete deployment PIPELINE_NAME
 ```
 
-When a deployment is created, a workflow-controller job is started in your cluster. Not all clusters are configured to clean-up these jobs up automatically, in which case you may have to delete them manually.
+Delete all active services associated with a pipeline
 
-### Get Deployment Workflow Logs
+**Arguments:**
 
-```text
-$ bodywork deployment logs \
-    --namespace=YOUR_NAMESPACE \
-    --name=DEPLOYMENT_NAME
-```
+`PIPELINE_NAME`
+: The name of the pipelines that created the services. A pipeline's name is defined in `bodywork.yaml`.
 
-Stream the workflow logs from the workflow-controller job, to your terminal's standard output stream.
+---
 
 ## Manage Secrets
 
-Secrets are used to pass credentials to containers running workflow stages that require authentication with 3rd party services (e.g. cloud storage providers). See [Managing Credentials and Other Secrets](user_guide.md#managing-credentials-and-other-secrets) and [Injecting Secrets into Stage Containers](user_guide.md#injecting-secrets-into-stage-containers) for more information.
+Secrets are used to pass credentials to the containers running pipeline stages - e.g., for authenticating with your cloud provider's API to access object storage. See [Managing Credentials and Other Secrets](user_guide.md#managing-credentials-and-other-secrets) and [Injecting Secrets into Stage Containers](user_guide.md#injecting-secrets-into-stage-containers).
 
 ### Create Secrets
 
@@ -138,28 +154,7 @@ $ bodywork secret display \
 
 Will only print `SECRET_NAME` to stdout.
 
-## Manage Services
-
-Unlike batch stages that have a discrete lifetime, service deployments live indefinitely and may need to be managed as your project develops.
-
-### Get Services
-
-```text
-$ bodywork service display \
-    --namespace=YOUR_NAMESPACE
-```
-
-Will list information on all active service deployments available in `YOUR_NAMESPACE`, including their internal cluster URLs.
-
-### Delete Services
-
-```text
-$ bodywork service delete \
-    --namespace=YOUR_NAMESPACE \
-    --name=SERVICE_NAME
-```
-
-Delete an active service deployment - e.g. one that is no longer required for a project.
+---
 
 ## Manage Cronjobs
 
@@ -219,6 +214,8 @@ $ bodywork cronjob logs \
 
 Stream the workflow logs from a historical workflow-controller job, to your terminal's standard output stream.
 
+--- 
+
 ## Debug
 
 ```text
@@ -251,3 +248,5 @@ Once you're finished debugging, the deployment can be shut-down using,
 ```text
 $ kubectl delete deployment DEBUG_DEPLOYMENT_NAME -n YOUR_NAMESPACE
 ```
+
+---
