@@ -10,7 +10,7 @@ Bodywork CLI commands for managing ML pipelines on Kubernetes.
 $ bodywork --version
 ```
 
-Prints the Bodywork package version to stdout.
+Prints the Bodywork version.
 
 ---
 
@@ -22,10 +22,12 @@ The `bodywork.yaml` file can be checked for errors using,
 $ bodywork validate
 ```
 
+Returns a list of configuration file errors.
+
 **Options:**
 
 `--check-files`
-: Check if all `executable_module_path` paths map to files that exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located. This command assumes that `bodywork.yaml` is in the current working directory - if this is not the case, use the `--file` option to specify the path of `bodywork.yaml`. Validation errors are printed to stdout.
+: Check that all paths specified as `executable_module_path` exist and can be reached by Bodywork, from the root directory where `bodywork.yaml` is located. This command assumes that `bodywork.yaml` is in the current working directory - if this is not the case, use the `--file` option to specify the path of `bodywork.yaml`.
 
 ---
 
@@ -35,28 +37,28 @@ $ bodywork validate
 $ bodywork configure-cluster
 ```
 
-Prepare your Kubernetes cluster for use with Bodywork. Creates a namespace, together with service accounts and roles for managing pipeline orchestration.
+Prepare your Kubernetes cluster for use with Bodywork. Creates a dedicated Bodywork namespace, together with service accounts and roles for managing pipeline orchestration.
 
 ---
 
 ## Deploying Pipelines
 
-Orchestrate stages on Kubernetes that run ML workloads and create ML services.
+Orchestrate stages on Kubernetes that run ML workloads and start ML services.
 
 ### Create Deployment
 
 ```text
-$ bodywork create deployment REMOTE_GIT_REPO_URL REMOTE_GIT_REPO_BRANCH
+$ bodywork create deployment GIT_REPO_URL GIT_REPO_BRANCH
 ```
 
 Deploy a pipeline to Kubernetes.
 
 **Arguments:**
 
-`REMOTE_GIT_REPO_URL`
+`GIT_REPO_URL`
 : Location of the Git repository that contains the pipeline's codebase.
 
-`REMOTE_GIT_REPO_BRANCH`
+`GIT_REPO_BRANCH`
 : Branch of Git repository to deploy.
 
 **Options:**
@@ -70,7 +72,7 @@ Deploy a pipeline to Kubernetes.
 $ bodywork get deployments PIPELINE_NAME SERVICE_NAME
 ```
 
-Get information on pipelines and the service stages created by them. If no options are specified, then a list of all pipelines with active service stages will be returned.
+Get information on pipelines and the service created by them. If no options are specified, then a list of all pipelines with active services will be returned.
 
 **Arguments:**
 
@@ -78,22 +80,22 @@ Get information on pipelines and the service stages created by them. If no optio
 : (optional) List summary information on all active service stages associated with a pipeline. A pipeline's name is defined in `bodywork.yaml`.
 
 `SERVICE_NAME`
-: (optional) List detailed information for a single service deployed by a pipeline. 
+: (optional) List detailed information for a single service deployed by a pipeline.
 
 ### Update Deployment
 
 ```text
-$ bodywork update deployment REMOTE_GIT_REPO_URL REMOTE_GIT_REPO_BRANCH
+$ bodywork update deployment GIT_REPO_URL GIT_REPO_BRANCH
 ```
 
 Redeploy a pipeline to Kubernetes.
 
 **Arguments:**
 
-`REMOTE_GIT_REPO_URL`
+`GIT_REPO_URL`
 : Location of the Git repository that contains the pipeline's codebase.
 
-`REMOTE_GIT_REPO_BRANCH`
+`GIT_REPO_BRANCH`
 : Branch of Git repository to deploy.
 
 **Options:**
@@ -118,116 +120,196 @@ Delete all active services associated with a pipeline
 
 ## Manage Secrets
 
-Secrets are used to pass credentials to the containers running pipeline stages - e.g., for authenticating with your cloud provider's API to access object storage. See [Managing Credentials and Other Secrets](user_guide.md#managing-credentials-and-other-secrets) and [Injecting Secrets into Stage Containers](user_guide.md#injecting-secrets-into-stage-containers).
+Pass secret data to the containers running pipeline stages - e.g., for authenticating with your cloud provider's API to access object storage. See [Managing Credentials and Other Secrets](user_guide.md#managing-credentials-and-other-secrets) and [Injecting Secrets into Stage Containers](user_guide.md#injecting-secrets-into-stage-containers).
 
 ### Create Secrets
 
 ```text
-$ bodywork secret create \
-    --namespace=YOUR_NAMESPACE \
-    --name=SECRET_NAME \
-    --data SECRET_KEY_1=secret-value-1 SECRET_KEY_2=secret-value-2
+$ bodywork create secret SECRET_NAME \
+    --group SECRETS_GROUP \
+    --data SECRET_KEY_VALUE_PAIRS
 ```
 
-### Delete Secrets
+**Arguments:**
 
-```text
-$ bodywork secret delete \
-    --namespace=YOUR_NAMESPACE \
-    --name=SECRET_NAME
-```
+`SECRET_NAME`
+: The name to give this secret - e.g., `api-credentials`.
+
+`SECRETS_GROUP`
+: The group this secret belongs to - e.g., `dev-environment`
+
+`SECRET_KEY_VALUE_PAIRS`
+: Secret data items as keys and values - e.g., `USERNAME=api-username PASSWORD=api-password`.
+
+Secret groups will be created automatically if they do not already exist.
 
 ### Get Secrets
 
 ```text
-$ bodywork secret display \
-    --namespace=YOUR_NAMESPACE
+$ bodywork get secrets \
+    --group SECRETS_GROUP
+    --name SECRET_NAME
 ```
 
-Will print all secrets in `YOUR_NAMESPACE` to stdout.
+If none of the options are specified, then `bodywork get secrets` will return a list of all secrets.
+
+**Options:**
+
+`--group`
+: The secret group - e.g, `dev-environment` - to look in. If `--name` is not specified, then this will return a list of all secrets in the group.
+
+`--name`
+: Prints the full details for a single secret within a group.
+
+### Update Secrets
 
 ```text
-$ bodywork secret display \
-    --namespace=YOUR_NAMESPACE \
-    --name=SECRET_NAME
+$ bodywork update secret SECRET_NAME \
+    --group SECRETS_GROUP \
+    --data SECRET_KEY_VALUE_PAIRS
 ```
 
-Will only print `SECRET_NAME` to stdout.
+**Arguments:**
+
+`SECRET_NAME`
+: The name of the secret to update - e.g., `api-credentials`.
+
+`SECRETS_GROUP`
+: The group this secret belongs to - e.g., `dev-environment`
+
+`SECRET_KEY_VALUE_PAIRS`
+: Updated secret data items - e.g., `USERNAME=new-api-username PASSWORD=-new-api-password REGION=api-region`.
+
+### Delete Secrets
+
+```text
+$ bodywork delete secret \
+    --group SECRET_GROUP
+    --name SECRET_NAME
+```
+
+**Arguments:**
+
+`SECRETS_GROUP`
+: The secret group - e.g., `dev-environment`. If no `--name` is specified, then all secrets within the group will be deleted.
+
+**Options:**
+
+`--name`
+: If specified, will delete only the named secret in the group.
 
 ---
 
 ## Manage Cronjobs
 
-Workflows can be executed on a schedule using Bodywork cronjobs. Scheduled workflows will be managed by workflow-controller jobs that Bodywork starts automatically on your cluster.
-
-### Get Cronjobs
-
-```text
-$ bodywork cronjob display \
-    --namespace=YOUR_NAMESPACE
-```
-
-Will list all active cronjobs within `YOUR_NAMESPACE`.
+Schedule pipeline runs using cronjobs.
 
 ### Create Cronjob
 
 ```text
-$ bodywork cronjob create \
-    --namespace=YOUR_NAMESPACE \
-    --name=CRONJOB_NAME \
-    --schedule=CRON_SCHEDULE \
-    --git-repo-url=REMOTE_GIT_REPO_URL \
-    --git-repo-branch=REMOTE_GIT_REPO_BRANCH \
-    --retries=NUMBER_OF_TIMES_TO_RETRY_ON_FAILURE \
-    --history-limit=MIN_NUMBER_OF_WORKFLOW_CONTROLLER_JOBS_TO_RETAIN
+$ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
+    --name NAME \
+    --schedule CRON_SCHEDULE \
 ```
 
-Will create a cronjob whose schedule must be a valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the workflow every hour. Use the `MIN_NUMBER_OF_WORKFLOW_CONTROLLER_JOBS_TO_RETAIN` argument to set the minimum number of historical workflow-controller jobs that are retained, at any given moment in time.
+**Arguments:**
+
+`GIT_REPO_URL`
+: Location of the Git repository that contains the pipeline's codebase.
+
+`GIT_REPO_BRANCH`
+: Branch of Git repository to deploy.
+
+`NAME`
+: The cronjob's name - e.g., 'daily retraining'.
+
+`CRON_SCHEDULE`
+: Valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the pipeline every hour.
+
+**Options:**
+
+`--retries`
+: The number of times to retry executing the pipeline, should any stage fail.
+
+`--history-limit`
+: The number of historical pipeline runs to retain logs for.
+
+### Get Cronjobs
+
+```text
+$ bodywork get cronjob NAME
+```
+
+**Arguments:**
+
+`NAME`
+: (optional) The cronjob's name - e.g., 'daily retraining'. If omitted, then a list of all active cronjobs will be returned.
+
+**Options:**
+
+`--history`
+: If specified together with `NAME`, then return a list of historical cronjob runs, for which logs have been retained. Use this to get the name assigned to a specific run, to use with the `--logs` option (see below).
+
+`--logs`
+: To return the logs of a historical pipeline run, specify this flag and use the specific name assigned to the historical run as the `NAME` argument. Use the 
+
+### Update Cronjob
+
+```text
+$ bodywork update cronjob GIT_REPO_URL GIT_REPO_BRANCH \
+    --name NAME \
+    --schedule CRON_SCHEDULE
+```
+
+**Arguments:**
+
+`GIT_REPO_URL`
+: Location of the Git repository that contains the pipeline's codebase.
+
+`GIT_REPO_BRANCH`
+: Branch of Git repository to deploy.
+
+`NAME`
+: The name of the cronjob to update - e.g., 'daily retraining'.
+
+`CRON_SCHEDULE`
+: Valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the pipeline every hour.
+
+**Options:**
+
+`--retries`
+: The number of times to retry executing the pipeline, should any stage fail.
+
+`--history-limit`
+: The number of historical pipeline runs to retain logs for.
 
 ### Delete Cronjob
 
 ```text
-$ bodywork cronjob delete \
-    --namespace=YOUR_NAMESPACE \
-    --name=CRONJOB_NAME
+$ bodywork delete cronjob NAME
 ```
 
-Will also delete all historic workflow-controller jobs associated with this cronjob.
+Will also delete all historical logs associated with this cronjob.
 
-### Get Cronjob History
+**Arguments:**
 
-```text
-$ bodywork cronjob history \
-    --namespace=YOUR_NAMESPACE \
-    --name=CRONJOB_NAME
-```
-
-Display all workflow-controller jobs that were created by a cronjob.
-
-### Get Cronjob Workflow Logs
-
-```text
-$ bodywork cronjob logs \
-    --namespace=YOUR_NAMESPACE \
-    --name=HISTORICAL_CRONJOB_WORKFLOW_EXECUTION_JOB_NAME
-```
-
-Stream the workflow logs from a historical workflow-controller job, to your terminal's standard output stream.
+`NAME`
+: The name of the cronjob to update - e.g., 'daily retraining'.
 
 --- 
 
-## Debug
+## Advanced Debugging
 
 ```text
 $ bodywork debug SECONDS
 ```
 
-Runs the Python `time.sleep` function for `SECONDS`. This is intended for use with the Bodywork image and kubectl - for deploying a container on which to open shell access for advanced debugging. For example, issuing the following command,
+Runs the Python `time.sleep` function for `SECONDS`. This is intended for use with the Bodywork image and kubectl - for deploying a container on which to open shell access for **advanced** debugging. For example, issuing the following command,
 
 ```text
 $ kubectl create deployment DEBUG_DEPLOYMENT_NAME \
     -n YOUR_NAMESPACE \
-    --image=bodyworkml/bodywork-core:latest \
+    --image bodyworkml/bodywork-core:latest \
     -- bodywork debug SECONDS
 ```
 
