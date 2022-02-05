@@ -147,7 +147,7 @@ Secret groups will be created automatically if they do not already exist.
 
 ```text
 $ bodywork get secrets \
-    --group SECRETS_GROUP
+    --group SECRETS_GROUP \
     --name SECRET_NAME
 ```
 
@@ -184,7 +184,7 @@ $ bodywork update secret SECRET_NAME \
 
 ```text
 $ bodywork delete secret \
-    --group SECRET_GROUP
+    --group SECRET_GROUP \
     --name SECRET_NAME
 ```
 
@@ -209,7 +209,7 @@ Schedule pipeline runs using cronjobs.
 ```text
 $ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
     --name NAME \
-    --schedule CRON_SCHEDULE \
+    --schedule CRON_SCHEDULE
 ```
 
 **Arguments:**
