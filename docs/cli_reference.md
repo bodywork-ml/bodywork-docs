@@ -66,6 +66,9 @@ Deploy a pipeline to Kubernetes.
 `--retries`
 : The number of times to retry the deployment, should any stage fail.
 
+`--ssh-key-path`
+: If the Git repo is private, then use the SSH key at this location to enable access. Automatically creates a secret for this purpose.
+
 ### Get Deployments
 
 ```text
@@ -233,6 +236,9 @@ $ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
 
 `--history-limit`
 : The number of historical pipeline runs to retain logs for.
+
+`--ssh-key-path`
+: If the Git repo is private, then use the SSH key at this location to enable access. Automatically creates a secret for this purpose.
 
 ### Get Cronjobs
 
