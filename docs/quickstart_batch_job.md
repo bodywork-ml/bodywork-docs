@@ -1,4 +1,4 @@
-# Single Stage Batch Workload
+# Batch Workloads
 
 ![deploy batch job](images/batch_job_qs.png)
 
@@ -9,7 +9,7 @@
 
 ## Before we Start
 
-This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](kubernetes.md#quickstart) for help  with this).
+This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](kubernetes.md#quickstart) for help with this).
 
 We **strongly** recommend that you find five minutes to read about the [key concepts](key_concepts.md) that Bodywork is built upon, before beginning to work-through the examples below.
 
@@ -158,7 +158,7 @@ The most important element is the specification of the workflow DAG, which in th
 To deploy the pipeline, use the following command,
 
 ```text
-$ bw create deployment https://github.com/bodywork-ml/bodywork-batch-job-project master
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-batch-job-project" "master"
 ```
 
 Which will run the pipeline defined in the `master` branch of the project's remote Git repository and stream the logs to stdout - e.g,
@@ -179,10 +179,10 @@ You can also keep track of the pipeline's progress by using the Kubernetes dashb
 If you're happy with the results of this test deployment, you can then schedule the pipeline to run on the cluster, on a schedule. For example, to setup the the workflow to run every hour, use the following command,
 
 ```text
-$ bw create cronjob https://github.com/bodywork-ml/bodywork-batch-job-project master \
-    --name=hourly \
-    --schedule="0 * * * *" \
-    --retries=2
+$ bw create cronjob "https://github.com/bodywork-ml/bodywork-batch-job-project" "master" \
+    --name "hourly" \
+    --schedule "0 * * * *" \
+    --retries 2
 ```
 
 Each scheduled pipeline execution will attempt to run the batch inference job, as defined by the state of this repository's `master` branch at the time of execution.
@@ -190,7 +190,7 @@ Each scheduled pipeline execution will attempt to run the batch inference job, a
 To get the execution history for this cronjob use,
 
 ```text
-$ bw get cronjob hourly --history
+$ bw get cronjob "hourly" --history
 ```
 
 Which should return output along the lines of,
@@ -211,5 +211,5 @@ Which should return output along the lines of,
 Then to stream the logs from any given cronjob run (e.g. to debug and/or monitor for errors), use,
 
 ```text
-$ bw get cronjobs hourly --logs hourly-1645446900
+$ bw get cronjobs hourly --logs "hourly-1645446900"
 ```

@@ -15,8 +15,8 @@ nav:
   - Licensing: licensing.md
   - Contact: contact.md
   - Quickstart Tutorials:
-    - Single Stage Batch Workload: quickstart_batch_job.md
-    - Single Stage Model Deployment: quickstart_serve_model.md
+    - Batch Workloads: quickstart_batch_job.md
+    - Model Deployment: quickstart_serve_model.md
     - Continuous Training Pipeline: quickstart_ml_pipeline.md
   - Release Notes:
     - Version 2.1.0: release_notes/v2.1.0.md

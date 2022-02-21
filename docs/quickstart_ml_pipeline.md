@@ -10,7 +10,7 @@
 
 ## Before we Start
 
-This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-ml-pipeline-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](index.md#prerequisites) for help  with this).
+This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-ml-pipeline-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](index.md#prerequisites) for help with this).
 
 This tutorial builds upon concepts introduced in the [Batch Workload](quickstart_batch_job.md) and [Model Deployment](quickstart_serve_model.md) quickstart tutorials. It demonstrates how multi-stage ML pipelines can be deployed with Bodywork.
 
@@ -268,7 +268,7 @@ The most important element is the specification of the workflow DAG, which in th
 To deploy the pipeline and create the prediction service, use the following command,
 
 ```text
-$ bw create deployment https://github.com/bodywork-ml/bodywork-ml-pipeline-project master
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-ml-pipeline-project" "master"
 ```
 
 Which will run the pipeline defined in the `master` branch of the project's remote Git repository and stream the logs to stdout - e.g,
@@ -287,7 +287,7 @@ Which will run the pipeline defined in the `master` branch of the project's remo
 The details of any serviced associated with the pipeline, can be retrieved using,
 
 ```text
-$ bw get deployment bw get deployment bodywork-ml-pipeline-project stage-2-scoring-service
+$ bw get deployment "bodywork-ml-pipeline-project" "stage-2-scoring-service"
 
 ┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field                ┃ Value                                                                         ┃
@@ -335,8 +335,8 @@ According to how the payload has been defined in the `stage_2_scoring_service/se
 If you're happy with the results of this test deployment, you can then schedule the pipeline to run on the cluster, on a schedule. For example, to setup the the workflow to run every day at midnight, use the following command,
 
 ```text
-$ bw create cronjob https://github.com/bodywork-ml/bodywork-ml-pipeline-project master \
-    --name daily \
+$ bw create cronjob "https://github.com/bodywork-ml/bodywork-ml-pipeline-project" "master" \
+    --name "daily" \
     --schedule "0 * * * *" \
     --retries 2
 ```
@@ -346,7 +346,7 @@ Each scheduled pipeline execution will attempt to run the pipeline - i.e., retra
 To get the execution history for this cronjob use,
 
 ```text
-$ bw get cronjob daily --history
+$ bw get cronjob "daily" --history
 ```
 
 Which should return output along the lines of,
@@ -367,7 +367,7 @@ Which should return output along the lines of,
 Then to stream the logs from any given cronjob run (e.g. to debug and/or monitor for errors), use,
 
 ```text
-$ bw get cronjobs daily --logs hourly-1645446900
+$ bw get cronjobs daily --logs "hourly-1645446900"
 ```
 
 ## Cleaning Up
@@ -375,5 +375,5 @@ $ bw get cronjobs daily --logs hourly-1645446900
 To tear-down the prediction service created by the pipeline you can use,
 
 ```text
-$ bw delete deployment bodywork-ml-pipeline-project
+$ bw delete deployment "bodywork-ml-pipeline-project"
 ```

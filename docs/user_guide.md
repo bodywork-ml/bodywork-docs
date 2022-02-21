@@ -339,9 +339,9 @@ Secret credentials will be required whenever you wish to pull data or persist mo
 
 ```text
 $ bw create secret \
-    --group dev \
-    --name cloud-storage-credentials \
-    --data USERNAME=bodywork PASSWORD=bodywork123!
+    --group "dev" \
+    --name "cloud-storage-credentials" \
+    --data "USERNAME=bodywork" "PASSWORD=bodywork123!"
 ```
 
 This will store both `USERNAME` and `PASSWORD` within a [Kubernetes secret resource](https://kubernetes.io/docs/concepts/configuration/secret/) called `cloud-storage-credentials`, tagged as belonging to a group of secrets named `dev`. To inject `USERNAME` and `PASSWORD` as environment variables within a stage, see [Injecting Secrets](#injecting-secrets) above.

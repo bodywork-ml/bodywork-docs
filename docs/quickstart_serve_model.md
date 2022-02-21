@@ -9,7 +9,7 @@
 
 ## Before we Start
 
-This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-serve-model-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](index.md#prerequisites) for help  with this).
+This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-serve-model-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](index.md#prerequisites) for help with this).
 
 We **strongly** recommend that you find five minutes to read about the [key concepts](key_concepts.md) that Bodywork is built upon, before beginning to work-through the examples below.
 
@@ -171,7 +171,7 @@ The most important element is the specification of the workflow DAG, which in th
 To deploy the pipeline and create the prediction service, use the following command,
 
 ```text
-$ bw create deployment https://github.com/bodywork-ml/bodywork-serve-model-project master
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-serve-model-project" "master"
 ```
 
 Which will run the pipeline defined in the `master` branch of the project's remote Git repository and stream the logs to stdout - e.g,
@@ -190,7 +190,7 @@ Which will run the pipeline defined in the `master` branch of the project's remo
 The details of any serviced associated with the pipeline, can be retrieved using,
 
 ```text
-$ bw get deployment bw get deployment bodywork-serve-model-project scoring-service
+$ bw get deployment "bodywork-serve-model-project" "scoring-service"
 
 ┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field                ┃ Value                                                                 ┃
@@ -238,5 +238,5 @@ According to how the payload has been defined in the `scoring-service/serve.py` 
 To tear-down the prediction service created by the pipeline you can use,
 
 ```text
-$ bw delete deployment bodywork-serve-model-project
+$ bw delete deployment "bodywork-serve-model-project"
 ```
