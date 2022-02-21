@@ -9,7 +9,7 @@
 
 ## Before we Start
 
-This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](index.md#prerequisites) for help  with this).
+This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](kubernetes.md#quickstart) for help  with this).
 
 We **strongly** recommend that you find five minutes to read about the [key concepts](key_concepts.md) that Bodywork is built upon, before beginning to work-through the examples below.
 
@@ -60,7 +60,7 @@ logging:
   log_level: INFO
 ```
 
-The `stages.score_data.executable_module_path` parameter points to the executable Python module - `score.py` - that defines what will happen when the `score_data` (batch) stage is executed, within a Bodywork's pre-built containers. This module contains the code required to:
+The `stages.score_data.executable_module_path` parameter points to the executable Python module - `score.py` - that defines what will happen when the `score_data` (batch) stage is executed, within a pre-built Bodywork container. This module contains the code required to:
 
 1. download the new dataset from cloud storage (AWS S3);
 2. load the pre-trained model `classification_model.joblib`;
@@ -106,7 +106,7 @@ $ python score.py
 
 And so everything defined in `main()` will be executed.
 
-The `stages.score_data.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the container, as required to run the `score.py` module. In this example we have,
+The `stages.score_data.requirements` parameter in `bodywork.yaml` lists the 3rd party Python packages that will be Pip-installed on the container, as required to run the `score.py` module. In this example we have,
 
 ```text
 boto3==1.16.15
@@ -140,9 +140,9 @@ stages:
 
 From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
 
-## Configuring the Workflow
+## Configuring the Pipeline
 
-The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
+The `project` section of `bodywork.yaml` contains the configuration for the whole pipeline, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
 
 ```yaml
 project:

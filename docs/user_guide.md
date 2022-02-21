@@ -425,7 +425,9 @@ $ bw get deployment classification-pipeline prediction_service
 └──────────────────────┴───────────────────────────────────────────────────────────────────────┘
 ```
 
-Services are accessible via HTTP from **within** the cluster, via the `service_url`, or accessed via the public internet if you have [installed an ingress controller](kubernetes.md#installing-nginx) in your cluster, and have set the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) to `true`. In the latter case, you can test access using,
+Services are accessible via the public internet if you have [installed an ingress controller](kubernetes.md#installing-nginx) within your cluster, and have set the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) to `true`. If you are using Kubernetes via Minikube and our [Kuberentes Quickstart](kubernetes.md#quickstart) guide, then this will have been enabled for you. Otherwise, services will only be accessible via HTTP from **within** the cluster, via the `service_url`.
+
+Assuming that you are setup to access services from outside the cluster, then you can test the endpoint using,
 
 ```text
 $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/classification-pipeline/prediction_service/ \
