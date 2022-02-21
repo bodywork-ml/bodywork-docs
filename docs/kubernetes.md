@@ -69,9 +69,9 @@ We currently recommend Minikube, as it comes packaged with useful add-ons (e.g. 
 
 ## Preparing a cluster for Bodywork
 
-Bodywork is almost entirely reliant on Kubernetes resource primitives (e.g. jobs, deployments, secrets, etc.), and won't install any 3rd party components onto your cluster. If you want to expose services (e.g. prediction APIs) to HTTP requests originating from outside the cluster, then you will need to install an ingress controller. Bodywork supports the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/), which is an open-source project and maintained by the Kubernetes team.
+Bodywork is almost entirely reliant on Kubernetes resource primitives (e.g. jobs, deployments, secrets, etc.), and won't install any 3rd party components onto your cluster. If you want to expose services (e.g. prediction APIs), to HTTP requests originating from outside the cluster, then you will need to install an ingress controller. Bodywork supports the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/), which is an open-source project and maintained by the Kubernetes team.
 
-### Installing the NGINX Ingress Controller
+### Installing NGINX
 
 This will act like an [API Gateway](https://www.nginx.com/learn/api-gateway/) for your cluster, that will route external HTTP requests to internal services that have been created by your ML pipelines.
 
