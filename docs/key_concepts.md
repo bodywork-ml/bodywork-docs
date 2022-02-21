@@ -48,9 +48,11 @@ Most ML projects can be described by one model training stage followed by a mode
 
 ## Deployment from Git Repos
 
-Bodywork requires projects to be stored as Git repositories, hosted either on GitHub, GitLab, Azure DevOps or BitBucket. When a pipeline is triggered, Bodywork starts a workflow-controller that clones the repository, analyses the configuration provided in `bodywork.yaml` and then manages the execution of the pipeline, starting new containers for each stage.
+Bodywork projects **must** be packaged as Git repositories, hosted on one of the following services: GitHub, GitLab, Azure DevOps or BitBucket. When a deployment is triggered, Bodywork will clone the repository, analyse the configuration provided in `bodywork.yaml`, and then orchestrate the execution of each stage in the pipeline.
 
-At no point is there any need to build Docker images and push them to a container registry. This simplifies [CI/CD](https://en.wikipedia.org/wiki/CI/CD), so that you can focus on the aspects that are more relevant to your ML solution.
+Each stage is executed within a newly created [Python-enabled container](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core), that starts by installing any 3rd party Python package dependencies that have been specified in `bodywork.yaml`, before running the chosen Python module (or Jupyter notebook).
+
+At no point is there any need to build Docker images and push them to a container registry. This simplifies [CI/CD](https://en.wikipedia.org/wiki/CI/CD), so that you can focus on those aspects that are more relevant to your ML solution (such as model testing and validation).
 
 ![ML pipeline deployment](images/ml_pipeline.png)
 

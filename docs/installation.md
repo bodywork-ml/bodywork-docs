@@ -43,6 +43,14 @@ Commands:
   version
 ```
 
+Note, that any Bodywork CLI command can be executed using `bodywork` or the command alias `bw` - i.e., issuing,
+
+```text
+$ bw --help
+```
+
+Is identical to the above version.
+
 ## Required Python Version
 
 Bodywork is developed and tested using Python 3.9. We recommend that your pipelines are also developed and tested using Python 3.9.

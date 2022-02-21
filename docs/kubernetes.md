@@ -1,12 +1,12 @@
 # Setup Kubernetes
 
-Bodywork uses Kubernetes as a back-end for running ML pipelines. This means that you'll need access to a Kubernetes cluster to use Bodywork, but it doesn't require you to be familiar with Kubernetes in any way.
+Bodywork uses Kubernetes as a back-end for running ML pipelines. Although this means that you'll need access to a Kubernetes cluster to use Bodywork, it doesn't require you to be familiar with Kubernetes in any way.
 
 This page contains everything you need to get up-and-running with a local test cluster, or to configure a cluster for production use.
 
 ## Quickstart
 
-An easy way to get started with Kubernetes is with [Minikube](https://minikube.sigs.k8s.io/docs/). This will enable you to easily create and manage local single-node Kubernetes clusters via the command line, and it comes bundled with everything you need to test Bodywork.
+An easy way to get started with Kubernetes is with [Minikube](https://minikube.sigs.k8s.io/docs/). This will enable you to easily create and manage a local single-node Kubernetes cluster via the command line, and it comes bundled with everything you need to test Bodywork and run the [Quickstart Tutorials](quickstart_ml_pipeline.md).
 
 If you are running on MacOS and using [Homebrew](https://brew.sh) for package management, then installing Minikube is as simple as running,
 
@@ -35,6 +35,22 @@ $ minikube profile list
 | minikube | hyperkit  | docker  | 192.168.64.5 | 8443 | v1.19.15 | Running |     1 |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 ```
+
+An alternative to accessing the cluster at it's IP address, is to open a new terminal and run,
+
+```text
+$ minikube tunnel
+```
+
+Which will enable you to access the cluster at `127.0.0.1` (localhost).
+
+You also can monitor Kubernetes resources and read logs via the [Kubernetes dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/), that can be accessed using,
+
+```text
+$ minikube dashboard
+```
+
+And will open the dashboard in your browser.
 
 When you’re done, the cluster can be powered-down using.
 
@@ -69,7 +85,7 @@ We currently recommend Minikube, as it comes packaged with useful add-ons (e.g. 
 
 ## Preparing a cluster for Bodywork
 
-Bodywork is almost entirely reliant on Kubernetes resource primitives (e.g. jobs, deployments, secrets, etc.), and won't install any 3rd party components onto your cluster. If you want to expose services (e.g. prediction APIs), to HTTP requests originating from outside the cluster, then you will need to install an ingress controller. Bodywork supports the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/), which is an open-source project and maintained by the Kubernetes team.
+Bodywork is almost entirely reliant on Kubernetes resource primitives (e.g. Jobs, Deployments, Secrets, etc.), and won't install any 3rd party components onto your cluster. If you want to expose services (e.g. prediction APIs), to HTTP requests originating from outside the cluster, then you will need to install an ingress controller. Bodywork supports the [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/), which is an open-source project and maintained by the Kubernetes team.
 
 ### Installing NGINX
 

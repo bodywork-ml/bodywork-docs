@@ -1,10 +1,10 @@
 # User Guide
 
-This is a comprehensive guide to deploying a ML pipelines to Kubernetes. It assumes that you understand the [key concepts](key_concepts.md) that Bodywork is built upon and that you have worked through one of the Quickstart Tutorials.
+This is a comprehensive guide to deploying a ML pipelines to Kubernetes. It assumes that you understand the [key concepts](key_concepts.md) that Bodywork is built upon and that you have worked through one of the [Quickstart Tutorials](quickstart_ml_pipeline.md).
 
 ## Structuring a ML Pipeline Project
 
-Bodywork does not impose constraints on how you can structure or develop your pipelines. So long as each stage in a pipeline can be linked to an executable Python module (or Jupyter notebook), then all Bodywork requires is configuration data contained within a file called `bodywork.yaml`. This [YAML](https://yaml.org) file describes how Bodywork should deploy the pipeline and will be the main focus of this user guide.
+Bodywork does not impose constraints on how you structure or develop your pipelines. So long as each stage in a pipeline can be linked to an executable Python module (or Jupyter notebook), then all Bodywork requires is configuration data contained within a file called `bodywork.yaml`. This [YAML](https://yaml.org) file describes how Bodywork should deploy the pipeline and will be the main focus of this user guide.
 
 As an example scenario that we will refer back to throughout this guide, consider the following project structure for a ML pipeline with the following stages: prepare features, train models (one using a SVM and another using a random forest), select the best performing model, and then deploy a microservice to serve predictions from the chosen model (via a REST API):
 
@@ -101,8 +101,8 @@ stages:
       - numpy==1.19.4
       - scikit-learn==0.23.2
     secrets:
-      USERNAME: classification-pipeline-cloud-storage-credentials
-      PASSWORD: classification-pipeline-cloud-storage-credentials
+      USERNAME: cloud-storage-credentials
+      PASSWORD: cloud-storage-credentials
     cpu_request: 0.25
     memory_request_mb: 100
     service:
@@ -151,7 +151,7 @@ Each configuration parameter is used as follows:
 : This will be used to label all Kubernetes resources deployed for this pipeline.
 
 `docker_image`
-: The container image to use for remote execution of pipeline stages. This should be set to `bodyworkml/bodywork-core:latest`, which will be pulled from [DockerHub](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core). You are free to specify custom images, based on the [official Bodywork image](https://github.com/bodywork-ml/bodywork-core/blob/master/Dockerfile).
+: The container image to use for remote execution of pipeline stages. This should be set the version of the Bodywork CLI that you are using - e.g., `bodyworkml/bodywork-core:3.0.0`, which will be pulled from [DockerHub](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core). You are free to create custom images that you can base on the official Bodywork [Dockerfile](https://github.com/bodywork-ml/bodywork-core/blob/master/Dockerfile).
 
 `DAG`
 : A description of the pipeline workflow - i.e., which stages to include in which step, and the order to run them in
@@ -194,8 +194,8 @@ stages:
       - numpy==1.19.4
       - scikit-learn==0.23.2
     secrets:
-      USERNAME: classification-pipeline-cloud-storage-credentials
-      PASSWORD: classification-pipeline-cloud-storage-credentials
+      USERNAME: cloud-storage-credentials
+      PASSWORD: cloud-storage-credentials
     cpu_request: 0.25
     memory_request_mb: 100
     service:
@@ -205,7 +205,7 @@ stages:
       ingress: true
 ```
 
-Every stage must have either a `batch` or `service` sub-section defined, depending on whether the stage is a batch stage or service stage. If `batch` is selected, then the executable Python module (or Jupyter notebook) will be run as a discrete job (i.e., with a start and an end), and managed as a [Kubernetes job](https://kubernetes.io/docs/concepts/workloads/controllers/job/). If `service` is selected, then it is assumed that the executable module will start a long-running process (e.g., a web server), and so it will be managed as a [Kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/), exposing a [Kubernetes cluster-ip service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to enable access over HTTP.
+Every stage must have either a `batch` or `service` sub-section defined, depending on whether the stage is a batch stage or service stage. If `batch` is selected, then the executable Python module (or Jupyter notebook) will be run as a discrete job (i.e., with a start and an end), and managed as a [Kubernetes Job](https://kubernetes.io/docs/concepts/workloads/controllers/job/). If `service` is selected, then it is assumed that the executable module will start a long-running process (e.g., a web server), and so it will be managed as a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/), exposing a [Kubernetes ClusterIP Service](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to enable access over HTTP.
 
 Top-level stage configuration parameters are to be used as follows:
 
@@ -281,7 +281,7 @@ Where:
 
 Pipeline stages will require secret credentials whenever you wish to pull data or persist models to cloud storage, access private APIs, etc. We provide a secure mechanism for dynamically injecting credentials as environment variables within the container running a stage.
 
-The first step in this process is to store your project's secret credentials - see [Managing Credentials and Other Secrets](#managing-secrets) below for instructions on how to achieve this using Bodywork.
+The first step in this process is to store your project's secret credentials - see [Managing Credentials and Other Secrets](#managing-secrets) below for instructions on how to achieve this with Bodywork.
 
 The second step is to configure the use of this secret with the `secrets` sub-section of a stage's configuration. For example,
 
@@ -294,11 +294,11 @@ stages:
   prediction_service:
     ...
     secrets:
-      USERNAME: classification-pipeline-cloud-storage-credentials
-      PASSWORD: classification-pipeline-cloud-storage-credentials
+      USERNAME: cloud-storage-credentials
+      PASSWORD: cloud-storage-credentials
 ```
 
-Will instruct Bodywork to look for values assigned to the keys `USERNAME` and `PASSWORD`, in the secret named `classification-pipeline-cloud-storage-credentials`, within the `dev` secrets group. Bodywork will then assign these secrets to environment variables within the container, called `USERNAME` and `PASSWORD`, respectively. These can then be accessed from within the stage's executable Python module - for example,
+Will instruct Bodywork to look for values assigned to the keys `USERNAME` and `PASSWORD`, in the secret named `cloud-storage-credentials`, within the `dev` secrets group. Bodywork will then assign these secrets to environment variables within the container, called `USERNAME` and `PASSWORD`, respectively. These can then be accessed from within the stage's executable Python module - for example,
 
 ```python
 import os
@@ -340,11 +340,11 @@ Secret credentials will be required whenever you wish to pull data or persist mo
 ```text
 $ bw create secret \
     --group dev \
-    --name classification-pipeline-cloud-storage-credentials \
+    --name cloud-storage-credentials \
     --data USERNAME=bodywork PASSWORD=bodywork123!
 ```
 
-This will store both `USERNAME` and `PASSWORD` within a [Kubernetes secret resource](https://kubernetes.io/docs/concepts/configuration/secret/) called `classification-pipeline-cloud-storage-credentials`, tagged as belonging to a group of secrets named `dev`. To inject `USERNAME` and `PASSWORD` as environment variables within a stage, see [Injecting Secrets](#injecting-secrets) above.
+This will store both `USERNAME` and `PASSWORD` within a [Kubernetes secret resource](https://kubernetes.io/docs/concepts/configuration/secret/) called `cloud-storage-credentials`, tagged as belonging to a group of secrets named `dev`. To inject `USERNAME` and `PASSWORD` as environment variables within a stage, see [Injecting Secrets](#injecting-secrets) above.
 
 ### Private Git Repositories
 
@@ -353,7 +353,7 @@ When working with remote Git repos that are private, Bodywork will attempt to ac
 You will then need to use Bodywork to pass the private SSH key to your Kubernetes cluster, as a secret credential. This easiest way to do this, is by specifying the path to the SSH key when you first deploy a pipeline - e.g.,
 
 ```text
-$ bw create deployment git@github.com:my-github-username/classification-pipeline.git master \
+$ bw create deployment "git@github.com:my-github-username/classification-pipeline.git" "master" \
     --ssh PATH_TO_SSH_FILE
 ```
 
@@ -388,13 +388,13 @@ save_model(model, model_filename)
 Deploying a pipeline will start a workflow-controller to manage the orchestration. For the example pipeline used throughout this user guide, the CLI command for deploying the pipeline from the `master` branch of a public Git repository, would be as follows,
 
 ```text
-$ bw create deployment https://github.com/my-github-username/classification-pipeline master
+$ bw create deployment "https://github.com/my-github-username/classification-pipeline" "master"
 ```
 
 If this repository were private, the command would be need to modified to,
 
 ```text
-$ bw create deployment git@github.com:my-github-username/classification-pipeline.git master \
+$ bw create deployment "git@github.com:my-github-username/classification-pipeline.git" "master" \
   --ssh "$(cat ~/.shh/id_rsa)"
 ```
 
@@ -405,7 +405,7 @@ Assuming that the private key used to setup SSH access with GitHub is located at
 The details of any serviced associated with the pipeline, can be retrieved using,
 
 ```text
-$ bw get deployment classification-pipeline prediction_service
+$ bw get deployment "classification-pipeline" "prediction_service"
 
 ┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field                ┃ Value                                                                 ┃
@@ -430,7 +430,7 @@ Services are accessible via the public internet if you have [installed an ingres
 Assuming that you are setup to access services from outside the cluster, then you can test the endpoint using,
 
 ```text
-$ curl http://YOUR_CLUSTERS_EXTERNAL_IP/classification-pipeline/prediction_service/ \
+$ curl "http://YOUR_CLUSTERS_EXTERNAL_IP/classification-pipeline/prediction_service/" \
     --request POST \
     --header "Content-Type: application/json" \
     --data '{"x": 5.1, "y": 3.5}'
@@ -443,7 +443,7 @@ See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to re
 Once you have finished testing, you may want to delete any services that have been created by your pipeline. To list all active services associated with a pipeline use,
 
 ```text
-$ bw get deployments classification-pipeline
+$ bw get deployments "classification-pipeline"
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Deployment Name / Service Name               ┃ Git Repository URL                                                  ┃
@@ -455,13 +455,13 @@ $ bw get deployments classification-pipeline
 Then to delete a service use,
 
 ```text
-$ bw delete deployment classification-pipeline prediction_service
+$ bw delete deployment "classification-pipeline" "prediction_service"
 ```
 
 To delete **all** services associated with a pipeline, use,
 
 ```text
-$ bw delete deployments classification-pipeline
+$ bw delete deployments "classification-pipeline"
 ```
 
 ### Pipeline Logs
@@ -492,11 +492,11 @@ The aim of this log structure is to provide a useful way of debugging pipelines,
 
 ## Scheduling Pipelines
 
-If your workflows are executing successfully, then you can schedule orchestration to operate remotely on the cluster as a [Kubernetes cronjob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/). For example, by issuing the following command from the CLI,
+If your pipeline is executing successfully, then you can schedule orchestration to operate remotely on the cluster as a [Kubernetes cronjob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/). For example, by issuing the following command from the CLI,
 
 ```text
-$ bw create cronjob https://github.com/my-github-username/classification-pipeline master \
-    --name daily \
+$ bw create cronjob "https://github.com/my-github-username/classification-pipeline" "master" \
+    --name "daily" \
     --schedule "0 * * * *" \
     --retries 2
 ```
@@ -516,7 +516,7 @@ $ bw get cronjobs
 Information on a specific cronjob can be retrieved using,
 
 ```text
-$ bw get cronjob classification-pipeline
+$ bw get cronjob "classification-pipeline"
 
 ┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field               ┃ Value                                                           ┃
@@ -532,7 +532,7 @@ $ bw get cronjob classification-pipeline
 A cronjob's execution history can be listed using,
 
 ```text
-$ bw get cronjob daily --history
+$ bw get cronjob "daily" --history
 
         workflow job = daily-1645398960        
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -551,7 +551,7 @@ $ bw get cronjob daily --history
 The logs for each pipeline run can be retrieved be accessed using,
 
 ```text
-$ bw get cronjob daily --logs daily-1645398960 
+$ bw get cronjob daily --logs "daily-1645398960" 
 ```
 
 Which will stream logs directly to stdout.
