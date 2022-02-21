@@ -36,7 +36,7 @@ We have added the pre-trained model to the project's Git repository for convenie
 
 ## Configuring the Service
 
-All of the configuration for this deployment is held within the `bodywork.yaml` file, whose contents are reproduced below.
+All of the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
 
 ```yaml
 version: "1.0"
@@ -215,13 +215,13 @@ Services are accessible via the public internet if you have [installed an ingres
 Assuming that you are setup to access services from outside the cluster, then you can test the endpoint using,
 
 ```text
-$ curl http://192.168.49.2/bodywork-serve-model-project/scoring-service/iris/v1/score \
+$ curl http://YOUR_CLUSTERS_EXTERNAL_IP/bodywork-serve-model-project/scoring-service/iris/v1/score \
     --request POST \
     --header "Content-Type: application/json" \
     --data '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
 ```
 
-That ought to return,
+See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP`. This ought to return,
 
 ```json
 {
@@ -235,7 +235,7 @@ According to how the payload has been defined in the `scoring-service/serve.py` 
 
 ## Cleaning Up
 
-To tear-down the service created by the pipeline you can use,
+To tear-down the prediction service created by the pipeline you can use,
 
 ```text
 $ bw delete deployment bodywork-serve-model-project

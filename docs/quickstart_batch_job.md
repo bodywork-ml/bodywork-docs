@@ -32,7 +32,7 @@ root/
 
 ## Configuring the Job
 
-All of the configuration for this deployment is held within the `bodywork.yaml` file, whose contents are reproduced below.
+All of the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
 
 ```yaml
 version: "1.0"
@@ -211,5 +211,5 @@ Which should return output along the lines of,
 Then to stream the logs from any given cronjob run (e.g. to debug and/or monitor for errors), use,
 
 ```text
-$ bw get cronjobs hourly2 --logs hourly-1645446900
+$ bw get cronjobs hourly --logs hourly-1645446900
 ```
