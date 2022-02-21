@@ -1,6 +1,6 @@
 # CLI Reference
 
-Bodywork CLI commands for managing ML pipelines on Kubernetes.
+Bodywork CLI commands for managing ML pipelines on Kubernetes. Note that `bw` can be used as an alias for `bodywork` in any of the commands listed below.
 
 ---
 
