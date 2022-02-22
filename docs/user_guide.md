@@ -160,7 +160,7 @@ Each configuration parameter is used as follows:
 : An optional [batch stage](#batch-stages) to be run only after a pipeline fails to complete successfully - i.e., when one of its stages fails. Within this special stage's you could trigger a webhook for [posting to Slack](https://api.slack.com/tutorials/slack-apps-hello-world), use the Python standard library to [send an e-mail](https://realpython.com/python-send-email/), or use the Python client for your company's chosen incident response platform (e.g., [PagerDuty](https://github.com/PagerDuty/pdpyras)). Note, that if Bodywork is unable to start the pipeline for any reason (e.g., your cluster cannot access the Bodywork container image), then it will **not** be able to run the chosen on-failure stage.
 
 `secrets_group`
-: If pipeline stages reference secret credentials, then which group of credentials should the Bodywork look in to find them - e.g., dev, prod, etc.
+: If pipeline stages reference secret credentials, then which group of credentials should Bodywork look in to find them - e.g., dev, prod, etc.
 
 ### Workflow DAGs
 

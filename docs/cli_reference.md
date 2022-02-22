@@ -232,7 +232,7 @@ $ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
 **Options:**
 
 `--retries`
-: The number of times to retry executing the pipeline, should any stage fail.
+: The number of times to retry executing the pipeline, should any stage fail (default is 3).
 
 `--history-limit`
 : The number of historical pipeline runs to retain logs for.
@@ -257,7 +257,7 @@ $ bodywork get cronjob NAME
 : If specified together with `NAME`, then return a list of historical cronjob runs, for which logs have been retained. Use this to get the name assigned to a specific run, to use with the `--logs` option (see below).
 
 `--logs`
-: To return the logs of a historical pipeline run, specify this flag and use the specific name assigned to the historical run as the `NAME` argument. Use the 
+: To return the logs of a historical pipeline run, specify this flag and use the specific name assigned to the historical run as the `NAME` argument. 
 
 ### Update Cronjob
 
