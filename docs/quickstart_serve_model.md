@@ -36,7 +36,7 @@ We have added the pre-trained model to the project's Git repository for convenie
 
 ## Configuring the Service
 
-All of the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
+All the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
 
 ```yaml
 version: "1.0"
