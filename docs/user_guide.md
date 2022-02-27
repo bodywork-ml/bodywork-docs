@@ -32,9 +32,9 @@ root/
 We have chosen to split the project into five directories, one for each stage, but this is not a requirement. The pipeline configuration in `bodywork.yaml` is shown below:
 
 ```yaml
-version: "1.0"
+version: "1.1"
 
-project:
+pipeline:
   name: classification-pipeline
   docker_image: bodyworkml/bodywork-core:latest
   DAG: prepare_features >> train_svm, train_random_forest >> choose_model >> prediction_service
@@ -138,7 +138,7 @@ Each stage is executed within a newly created [Python-enabled container](https:/
 High-level configuration for the pipeline is contained within the `project` section of `bodywork.yaml`. From the example above we have,
 
 ```yaml
-project:
+pipeline:
   name: classification-pipeline
   docker_image: bodyworkml/bodywork-core:latest
   DAG: prepare_features >> train_svm, train_random_forest >> choose_model >> prediction_service
@@ -286,7 +286,7 @@ The first step in this process is to store your project's secret credentials - s
 The second step is to configure the use of this secret with the `secrets` sub-section of a stage's configuration. For example,
 
 ```yaml
-project:
+pipeline:
   ...
   secrets_group: dev
 
@@ -357,7 +357,7 @@ $ bw create deployment "git@github.com:my-github-username/classification-pipelin
     --ssh PATH_TO_SSH_FILE
 ```
 
-Where `PATH_TO_SSH_FILE` is usually `~/.shh/id_rsa`. This will create the secret in the group set in `project.secrets_group`, within `bodywork.yaml`. If no group is specified, then it will create one that matches `project.name`.
+Where `PATH_TO_SSH_FILE` is usually `~/.shh/id_rsa`. This will create the secret in the group set in `pipeline.secrets_group`, within `bodywork.yaml`. If no group is specified, then it will create one that matches `pipeline.name`.
 
 Note, that when deploying pipelines from private Git repository, you **must** use the SSH protocol when specifying the Git repo's URL - e.g.,
 
@@ -558,4 +558,4 @@ Which will stream logs directly to stdout.
 
 ## Bodywork Analytics
 
-We collect basic usage statistics to help us understand how Bodywork is used. Every time you run a workflow, Bodywork will ping a remote server to increment a counter (nothing more). We do not store any data about you or your workflows (not even your IP address). You can see the code for this [here](https://github.com/bodywork-ml/bodywork-core/blob/bae4256e4b122f0aee43cfe4f11ceafc6150768d/src/bodywork/workflow_execution.py#L404). If you wish to disable this, then set `project.usage_stats: false` in your `bodywork.yaml` file.
+We collect basic usage statistics to help us understand how Bodywork is used. Every time you run a workflow, Bodywork will ping a remote server to increment a counter (nothing more). We do not store any data about you or your workflows (not even your IP address). You can see the code for this [here](https://github.com/bodywork-ml/bodywork-core/blob/bae4256e4b122f0aee43cfe4f11ceafc6150768d/src/bodywork/workflow_execution.py#L404). If you wish to disable this, then set `pipeline.usage_stats: false` in your `bodywork.yaml` file.

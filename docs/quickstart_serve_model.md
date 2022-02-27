@@ -39,9 +39,9 @@ We have added the pre-trained model to the project's Git repository for convenie
 All the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
 
 ```yaml
-version: "1.0"
+version: "1.1"
 
-project:
+pipeline:
   name: bodywork-serve-model-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: scoring_service
@@ -158,7 +158,7 @@ From which it is clear to see that we have specified that this stage will start 
 The `project` section of the `bodywork.yaml` file contains the configuration for the whole pipeline, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
 
 ```yaml
-project:
+pipeline:
   name: bodywork-serve-model-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: scoring_service

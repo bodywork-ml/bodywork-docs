@@ -42,9 +42,9 @@ root/
 All the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
 
 ```yaml
-version: "1.0"
+version: "1.1"
 
-project:
+pipeline:
   name: bodywork-ml-pipeline-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: stage_1_train_model >> stage_2_scoring_service
@@ -255,7 +255,7 @@ From which it is clear to see that we have specified that this stage will create
 The `project` section of `bodywork.yaml` contains the configuration for the pipeline,
 
 ```yaml
-project:
+pipeline:
   name: bodywork-ml-pipeline-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: stage_1_train_model >> stage_2_scoring_service
