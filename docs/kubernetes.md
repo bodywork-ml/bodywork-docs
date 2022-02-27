@@ -21,7 +21,7 @@ If you’re running on Windows or Linux, then follow the [recommended installati
 Once you have Minikube installed, start a cluster using the latest version of Kubernetes that Bodywork supports,
 
 ```text
-$ minikube start --kubernetes-version=v1.19.15 --addons=ingress
+$ minikube start --kubernetes-version=v1.22.6 --addons=ingress
 ```
 
 You’ll need the cluster’s IP address for testing services created by your ML pipelines. You can find this using,
@@ -32,7 +32,7 @@ $ minikube profile list
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 | Profile  | VM Driver | Runtime |      IP      | Port | Version  | Status  | Nodes |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
-| minikube | hyperkit  | docker  | 192.168.64.5 | 8443 | v1.19.15 | Running |     1 |
+| minikube | hyperkit  | docker  | 192.168.64.5 | 8443 | v1.22.6  | Running |     1 |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 ```
 
@@ -60,7 +60,7 @@ $ minikube stop
 
 ## Supported Kubernetes Versions
 
-Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (19.15.0) has full compatibility with Kubernetes 1.19. We recommend that you also use Kubernetes 1.19, but in-practice Bodywork will work with later versions - more information can be found [here](https://github.com/kubernetes-client/python#compatibility).
+Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (22.6.0) supports Kubernetes v1.22 and below. We recommend that you use a version of Kubernetes that is between v1.19 and v1.22. More information can be found [here](https://github.com/kubernetes-client/python#compatibility).
 
 ## Managed Kubernetes Services
 
