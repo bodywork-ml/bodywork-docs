@@ -353,7 +353,7 @@ When working with remote Git repos that are private, Bodywork will attempt to ac
 You will then need to use Bodywork to pass the private SSH key to your Kubernetes cluster, as a secret credential. This easiest way to do this, is by specifying the path to the SSH key when you first deploy a pipeline - e.g.,
 
 ```text
-$ bw create deployment "git@github.com:my-github-username/classification-pipeline.git" "master" \
+$ bw create deployment "git@github.com:my-github-username/classification-pipeline.git" \
     --ssh PATH_TO_SSH_FILE
 ```
 
@@ -385,20 +385,22 @@ save_model(model, model_filename)
 
 ## Deploying Pipelines
 
-Deploying a pipeline will start a workflow-controller to manage the orchestration. For the example pipeline used throughout this user guide, the CLI command for deploying the pipeline from the `master` branch of a public Git repository, would be as follows,
+Deploying a pipeline will start a workflow-controller to manage the orchestration. For the example pipeline used throughout this user guide, the CLI command for deploying the pipeline from the default branch of a public Git repository, would be as follows,
 
 ```text
-$ bw create deployment "https://github.com/my-github-username/classification-pipeline" "master"
+$ bw create deployment "https://github.com/my-github-username/classification-pipeline"
 ```
 
 If this repository were private, the command would be need to modified to,
 
 ```text
-$ bw create deployment "git@github.com:my-github-username/classification-pipeline.git" "master" \
+$ bw create deployment "git@github.com:my-github-username/classification-pipeline.git" \
   --ssh "$(cat ~/.shh/id_rsa)"
 ```
 
 Assuming that the private key used to setup SSH access with GitHub is located at `~/.shh/id_rsa`.
+
+Note, that if you wanted to deploy a pipeline from a branch other than the default branch, you can set this using the `--branch` option.
 
 ### Testing Services
 
@@ -495,7 +497,7 @@ The aim of this log structure is to provide a useful way of debugging pipelines,
 If your pipeline is executing successfully, then you can schedule orchestration to operate remotely on the cluster as a [Kubernetes cronjob](https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/). For example, by issuing the following command from the CLI,
 
 ```text
-$ bw create cronjob "https://github.com/my-github-username/classification-pipeline" "master" \
+$ bw create cronjob "https://github.com/my-github-username/classification-pipeline" \
     --name "daily" \
     --schedule "0 * * * *" \
     --retries 2
@@ -534,7 +536,7 @@ A cronjob's execution history can be listed using,
 ```text
 $ bw get cronjob "daily" --history
 
-        workflow job = daily-1645398960        
+           run ID = daily-1645398960
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field           ┃ Value                     ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩

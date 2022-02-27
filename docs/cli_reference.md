@@ -48,7 +48,7 @@ Orchestrate stages on Kubernetes that run ML workloads and start ML services.
 ### Create Deployment
 
 ```text
-$ bodywork create deployment GIT_REPO_URL GIT_REPO_BRANCH
+$ bodywork create deployment GIT_REPO_URL
 ```
 
 Deploy a pipeline to Kubernetes.
@@ -58,10 +58,10 @@ Deploy a pipeline to Kubernetes.
 `GIT_REPO_URL`
 : Location of the Git repository that contains the pipeline's codebase.
 
-`GIT_REPO_BRANCH`
-: Branch of Git repository to deploy.
-
 **Options:**
+
+`--branch`
+: Branch of Git repository to deploy, defaults to your repository's default branch (e.g., `master`).
 
 `--retries`
 : The number of times to retry the deployment, should any stage fail.
@@ -88,7 +88,7 @@ Get information on pipelines and the service created by them. If no options are 
 ### Update Deployment
 
 ```text
-$ bodywork update deployment GIT_REPO_URL GIT_REPO_BRANCH
+$ bodywork update deployment GIT_REPO_URL
 ```
 
 Redeploy a pipeline to Kubernetes.
@@ -98,10 +98,10 @@ Redeploy a pipeline to Kubernetes.
 `GIT_REPO_URL`
 : Location of the Git repository that contains the pipeline's codebase.
 
-`GIT_REPO_BRANCH`
-: Branch of Git repository to deploy.
-
 **Options:**
+
+`--branch`
+: Branch of Git repository to deploy, defaults to your repository's default branch (e.g., `master`).
 
 `--retries`
 : The number of times to retry the deployment, should any stage fail.
@@ -210,7 +210,7 @@ Schedule pipeline runs using cronjobs.
 ### Create Cronjob
 
 ```text
-$ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
+$ bodywork create cronjob GIT_REPO_URL \
     --name NAME \
     --schedule CRON_SCHEDULE
 ```
@@ -220,9 +220,6 @@ $ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
 `GIT_REPO_URL`
 : Location of the Git repository that contains the pipeline's codebase.
 
-`GIT_REPO_BRANCH`
-: Branch of Git repository to deploy.
-
 `NAME`
 : The cronjob's name - e.g., 'daily retraining'.
 
@@ -230,6 +227,9 @@ $ bodywork create cronjob GIT_REPO_URL GIT_REPO_BRANCH \
 : Valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the pipeline every hour.
 
 **Options:**
+
+`--branch`
+: Branch of Git repository to deploy, defaults to your repository's default branch (e.g., `master`).
 
 `--retries`
 : The number of times to retry executing the pipeline, should any stage fail (default is 3).
@@ -262,7 +262,7 @@ $ bodywork get cronjob NAME
 ### Update Cronjob
 
 ```text
-$ bodywork update cronjob GIT_REPO_URL GIT_REPO_BRANCH \
+$ bodywork update cronjob GIT_REPO_URL \
     --name NAME \
     --schedule CRON_SCHEDULE
 ```
@@ -272,9 +272,6 @@ $ bodywork update cronjob GIT_REPO_URL GIT_REPO_BRANCH \
 `GIT_REPO_URL`
 : Location of the Git repository that contains the pipeline's codebase.
 
-`GIT_REPO_BRANCH`
-: Branch of Git repository to deploy.
-
 `NAME`
 : The name of the cronjob to update - e.g., 'daily retraining'.
 
@@ -282,6 +279,9 @@ $ bodywork update cronjob GIT_REPO_URL GIT_REPO_BRANCH \
 : Valid [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression) - e.g. `0 * * * *` will run the pipeline every hour.
 
 **Options:**
+
+`--branch`
+: Branch of Git repository to deploy, defaults to your repository's default branch (e.g., `master`).
 
 `--retries`
 : The number of times to retry executing the pipeline, should any stage fail.

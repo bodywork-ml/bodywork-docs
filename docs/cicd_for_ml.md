@@ -100,7 +100,7 @@ jobs:
       - run: 
           name: Trigger Deployment
           command: |
-            bodywork create deployment "https://github.com/bodywork-ml/bodywork-pipeline-with-cicd.git" "master"
+            bodywork create deployment "https://github.com/bodywork-ml/bodywork-pipeline-with-cicd.git" --branch "master"
 
 workflows:
   version: 2
@@ -161,7 +161,8 @@ workflows:
 To configure Bodywork to execute the pipeline on a schedule (e.g. every day), execute the following command,
 
 ```text
-$ bodywork create cronjob "https://github.com/bodywork-ml/bodywork-pipeline-with-cicd.git" "master" \
+$ bodywork create cronjob "https://github.com/bodywork-ml/bodywork-pipeline-with-cicd.git" \
+    --branch "master" \
     --name "daily-train-and-deploy" \
     --schedule "0 * * * *" \
     --retries 2

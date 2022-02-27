@@ -268,10 +268,10 @@ The most important element is the specification of the workflow DAG, which in th
 To deploy the pipeline and create the prediction service, use the following command,
 
 ```text
-$ bw create deployment "https://github.com/bodywork-ml/bodywork-ml-pipeline-project" "master"
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-ml-pipeline-project"
 ```
 
-Which will run the pipeline defined in the `master` branch of the project's remote Git repository and stream the logs to stdout - e.g,
+Which will run the pipeline defined in the default branch of the project's remote Git repository (e.g., `master`), and stream the logs to stdout - e.g,
 
 ```text
 ========================================== deploying master branch from https://github.com/bodywork-ml/bodywork-ml-pipeline-project ===========================================
@@ -335,13 +335,13 @@ According to how the payload has been defined in the `stage_2_scoring_service/se
 If you're happy with the results of this test deployment, you can then schedule the pipeline to run on the cluster, on a schedule. For example, to setup the the workflow to run every day at midnight, use the following command,
 
 ```text
-$ bw create cronjob "https://github.com/bodywork-ml/bodywork-ml-pipeline-project" "master" \
+$ bw create cronjob "https://github.com/bodywork-ml/bodywork-ml-pipeline-project" \
     --name "daily" \
     --schedule "0 * * * *" \
     --retries 2
 ```
 
-Each scheduled pipeline execution will attempt to run the pipeline - i.e., retraining the model and updating the prediction service - as defined by the state of this repository's `master` branch at the time of execution.
+Each scheduled pipeline execution will attempt to run the pipeline - i.e., retraining the model and updating the prediction service - as defined by the state of this repository's default branch (`master`), at the time of execution. To change the branch used for deployment, use the `--branch` option.
 
 To get the execution history for this cronjob use,
 
@@ -352,7 +352,7 @@ $ bw get cronjob "daily" --history
 Which should return output along the lines of,
 
 ```text
-       workflow job = daily-1645446900       
+           run ID = daily-1645446900
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field           ┃ Value                     ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩

@@ -103,7 +103,7 @@ def score() -> Response:
 # ...
 
 
-if __name__ == '__master__':
+if __name__ == '__main__':
     model = load(MODEL_PATH)
     print(f'loaded model={model}')
     print(f'starting API server')
@@ -171,10 +171,10 @@ The most important element is the specification of the workflow DAG, which in th
 To deploy the pipeline and create the prediction service, use the following command,
 
 ```text
-$ bw create deployment "https://github.com/bodywork-ml/bodywork-serve-model-project" "master"
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-serve-model-project"
 ```
 
-Which will run the pipeline defined in the `master` branch of the project's remote Git repository and stream the logs to stdout - e.g,
+Which will run the pipeline defined in the default branch of the project's remote Git repository (e.g., `master`), and stream the logs to stdout - e.g,
 
 ```text
 ========================================== deploying master branch from https://github.com/bodywork-ml/bodywork-serve-model-project ===========================================

@@ -82,7 +82,7 @@ Where:
 This project can then be configured to run on a schedule with one command,
 
 ```text
-$ bodywork create cronjob "https://github.com/acme/my-ml-pipeline" "master" \
+$ bodywork create cronjob "https://github.com/acme/my-ml-pipeline" \
     --schedule "* 0 * * *" \
     --name "midnight-run" \
     --retries 2

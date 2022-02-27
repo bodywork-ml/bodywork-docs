@@ -158,10 +158,10 @@ The most important element is the specification of the workflow DAG, which in th
 To deploy the pipeline, use the following command,
 
 ```text
-$ bw create deployment "https://github.com/bodywork-ml/bodywork-batch-job-project" "master"
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-batch-job-project"
 ```
 
-Which will run the pipeline defined in the `master` branch of the project's remote Git repository and stream the logs to stdout - e.g,
+Which will run the pipeline defined in the default branch of the project's remote Git repository (e.g., `master`), and stream the logs to stdout - e.g,
 
 ```text
 =========================================== deploying master branch from https://github.com/bodywork-ml/bodywork-batch-job-project ============================================
@@ -179,13 +179,13 @@ You can also keep track of the pipeline's progress by using the Kubernetes dashb
 If you're happy with the results of this test deployment, you can then schedule the pipeline to run on the cluster, on a schedule. For example, to setup the the workflow to run every hour, use the following command,
 
 ```text
-$ bw create cronjob "https://github.com/bodywork-ml/bodywork-batch-job-project" "master" \
+$ bw create cronjob "https://github.com/bodywork-ml/bodywork-batch-job-project" \
     --name "hourly" \
     --schedule "0 * * * *" \
     --retries 2
 ```
 
-Each scheduled pipeline execution will attempt to run the batch inference job, as defined by the state of this repository's `master` branch at the time of execution.
+Each scheduled pipeline execution will attempt to run the batch inference job, as defined by the state of this repository's default branch (e.g., `master`), at the time of execution.
 
 To get the execution history for this cronjob use,
 
@@ -196,7 +196,7 @@ $ bw get cronjob "hourly" --history
 Which should return output along the lines of,
 
 ```text
-       workflow job = hourly-1645446900       
+           run ID = hourly-1645446900
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Field           ┃ Value                     ┃
 ┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
