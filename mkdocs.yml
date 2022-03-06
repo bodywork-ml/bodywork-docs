@@ -5,8 +5,8 @@ repo_name: bodywork/bodywork-core
 docs_dir: docs
 nav:
   - Overview: index.md
-  - Installing Bodywork: installation.md
-  - Setting-up Kubernetes: kubernetes.md
+  - Install Bodywork: installation.md
+  - Setup Kubernetes: kubernetes.md
   - Key Concepts: key_concepts.md
   - User Guide: user_guide.md
   - CLI Reference: cli_reference.md
@@ -15,10 +15,11 @@ nav:
   - Licensing: licensing.md
   - Contact: contact.md
   - Quickstart Tutorials:
-    - Run Batch Job: quickstart_batch_job.md
-    - Serve Model: quickstart_serve_model.md
-    - Deploy ML Pipeline: quickstart_ml_pipeline.md
+    - Batch Workloads: quickstart_batch_job.md
+    - Model Deployment: quickstart_serve_model.md
+    - Continuous Training Pipeline: quickstart_ml_pipeline.md
   - Release Notes:
+    - Version 3.0.0: release_notes/v3.0.0.md
     - Version 2.1.0: release_notes/v2.1.0.md
     - Version 2.0.0: release_notes/v2.0.0.md
     - Version 1.0.0: release_notes/v1.0.0.md

@@ -1,25 +1,26 @@
-# Deploying a Batch Job
+# Batch Workloads
 
 ![deploy batch job](images/batch_job_qs.png)
 
-This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to execute the examples, you will need to have setup [access to a Kubernetes cluster](index.md#prerequisites) and [installed bodywork](installation.md) on your local machine.
+## What am I going to Learn?
+
+* [x] How to deploy a single stage pipeline to run a batch workload (or job) on Kubernetes.
+* [x] How to schedule this job to run on daily basis.
+
+## Before we Start
+
+This tutorial refers to files within a Bodywork template project hosted on GitHub - check it out [here](https://github.com/bodywork-ml/bodywork-batch-job-project). If you want to run the examples you will need to [install Bodywork](installation.md) on your machine and setup access to Kubernetes (see the [Kubernetes Quickstart](kubernetes.md#quickstart) for help with this).
 
 We **strongly** recommend that you find five minutes to read about the [key concepts](key_concepts.md) that Bodywork is built upon, before beginning to work-through the examples below.
 
 !!! info "Working with private repositories"
-    If you've cloned the example project into a private repository and intend to use it for this tutorial, then you will need to follow the necessary configuration steps detailed [here](user_guide.md#working-with-private-git-repositories-using-ssh).
+    If you've cloned the example project into a private repository and intend to use this when following this tutorial, then you will need to be aware of the additional steps detailed [here](user_guide.md#private-git-repositories).
 
-## What am I going to Learn?
+## Example Job - Batch Inference
 
-* [x] How to take a Python module defining a ML task (or job) and deploy it to Kubernetes.
-* [x] How to test the deployment.
-* [x] How to run the job on a schedule, without the manual intervention of an ML engineer.
+The example task that we want to deploy as a batch job, is to load a pre-trained model and use it to score a dataset. The latest dataset will be downloaded from cloud storage (AWS S3) and the pre-trained model will be bundled into the project's Git repository for convenience (not as a best practice).
 
-## Scoring a Dataset with a Model
-
-The example task that we want to deploy as a batch job, is to load a pre-trained model and use it to score a dataset. The latest dataset will be downloaded from cloud storage (AWS S3) and the pre-trained model will be bundled with the executable Python module defining the job - this is for convenience (not as a best practice).
-
-The project for this single-stage workflow is packaged as a [GitHub repository](https://github.com/bodywork-ml/bodywork-batch-job-project) and is structured as follows,
+The project for this single-stage pipeline is structured as follows,
 
 ```text
 root/
@@ -31,14 +32,16 @@ root/
 
 ## Configuring the Job
 
-All of the configuration for this deployment is held within the `bodywork.yaml` file, whose contents are reproduced below.
+All the configuration for this deployment is held within `bodywork.yaml`, whose contents are reproduced below.
 
 ```yaml
-version: "1.0"
-project:
+version: "1.1"
+
+pipeline:
   name: bodywork-batch-job-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: score_data
+
 stages:
   score_data:
     executable_module_path: score_data/score.py
@@ -52,6 +55,7 @@ stages:
     batch:
       max_completion_time_seconds: 30
       retries: 2
+
 logging:
   log_level: INFO
 ```
@@ -102,7 +106,7 @@ $ python score.py
 
 And so everything defined in `main()` will be executed.
 
-The `stages.score_data.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `score.py` module. In this example we have,
+The `stages.score_data.requirements` parameter in `bodywork.yaml` lists the 3rd party Python packages that will be Pip-installed on the container, as required to run the `score.py` module. In this example we have,
 
 ```text
 boto3==1.16.15
@@ -116,7 +120,7 @@ scikit-learn==0.23.2
 * `pandas` - for manipulating the raw data; and,
 * `scikit-learn` - for training the model.
 
-Finally, the remaining parameters in `stages.score_data` section of the `bodywork.yaml` file allow us to configure the remaining key parameters for the stage,
+Finally, the remaining parameters in `stages.score_data` section of the `bodywork.yaml` file allow us to configure the remaining parameters for the stage,
 
 ```yaml
 stages:
@@ -136,12 +140,12 @@ stages:
 
 From which it is clear to see that we have specified that this stage is a batch stage (as opposed to a service stage), together with an estimate of the CPU and memory resources to request from the Kubernetes cluster, how long to wait and how many times to retry, etc.
 
-## Configuring the Workflow
+## Configuring the Pipeline
 
-The `project` section of the `bodywork.yaml` file contains the configuration for the whole workflow, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
+The `project` section of `bodywork.yaml` contains the configuration for the whole pipeline, which in this case consists of a single stage as defined in the `stages.scoring_service` section of `bodywork.yaml`.
 
 ```yaml
-project:
+pipeline:
   name: bodywork-batch-job-project
   docker_image: bodyworkml/bodywork-core:latest
   DAG: score_data
@@ -149,83 +153,63 @@ project:
 
 The most important element is the specification of the workflow DAG, which in this instance is simple and will instruct the Bodywork workflow-controller to run the `score_data` stage.
 
-## Testing the Workflow
+## Deploying the Pipeline
 
-Firstly, make sure that the [bodywork](https://pypi.org/project/bodywork/) package has been Pip-installed into a local Python environment that is active. Then, make sure that there is a namespace setup for use by Bodywork projects - e.g. `bodywork-batch-jobs` - by running the following at the command line,
+To deploy the pipeline, use the following command,
 
 ```text
-$ bodywork setup-namespace bodywork-batch-jobs
+$ bw create deployment "https://github.com/bodywork-ml/bodywork-batch-job-project"
 ```
 
-Which should result in the following output,
+Which will run the pipeline defined in the default branch of the project's remote Git repository (e.g., `master`), and stream the logs to stdout - e.g,
 
 ```text
-creating namespace=bodywork-batch-job
-creating service-account=bodywork-workflow-controller in namespace=bodywork-batch-jobs
-creating cluster-role-binding=bodywork-workflow-controller--bodywork-batch-jobs
-creating service-account=bodywork-jobs-and-deployments in namespace=bodywork-batch-jobs
+=========================================== deploying master branch from https://github.com/bodywork-ml/bodywork-batch-job-project ============================================
+[02/21/22 12:25:31] INFO     Creating k8s namespace = bodywork-batch-job-project                                                                                               
+[02/21/22 12:25:31] INFO     Creating k8s service account = bodywork-stage                                                                                                     
+[02/21/22 12:25:31] INFO     Attempting to execute DAG step = [score_data]                                                                                                     
+[02/21/22 12:25:31] INFO     Creating k8s job for stage = score-data                                                                                                           
+...
 ```
 
-Then, the workflow can be tested by running the workflow-controller locally (to orchestrate remote containers on k8s), using,
+You can also keep track of the pipeline's progress by using the Kubernetes dashboard and browsing to the namespace that matches the project name specified in `bodywork.yaml` - i.e., `bodywork-batch-job-project`.
+
+## Scheduling the Pipeline
+
+If you're happy with the results of this test deployment, you can then schedule the pipeline to run on the cluster, on a schedule. For example, to setup the the workflow to run every hour, use the following command,
 
 ```text
-$ bodywork deployment create \
-    --namespace=bodywork-batch-jobs \
-    --name=test-deployment \
-    --git-repo-url=https://github.com/bodywork-ml/bodywork-batch-job-project \
-    --git-repo-branch=master \
-    --local-workflow-controller
+$ bw create cronjob "https://github.com/bodywork-ml/bodywork-batch-job-project" \
+    --name "hourly" \
+    --schedule "0 * * * *" \
+    --retries 2
 ```
 
-Which will run the workflow defined in the `master` branch of the project's remote Git repository, all within the `bodywork-batch-jobs` namespace. The logs from the workflow-controller and from the container running the stage, will be streamed to the command-line to inform you on the precise state of the workflow, but you can also keep track of the current state of all Kubernetes resources created by the workflow-controller in the `bodywork-batch-jobs` namespace, by using the Kubectl CLI tool - e.g.,
+Each scheduled pipeline execution will attempt to run the batch inference job, as defined by the state of this repository's default branch (e.g., `master`), at the time of execution.
+
+To get the execution history for this cronjob use,
 
 ```text
-$ kubectl -n bodywork-batch-jobs get all
-```
-
-## Scheduling the Workflow
-
-If you're happy with the test results, you can schedule the workflow-controller to operate remotely on the cluster, on a pre-defined schedule. For example, to setup the the workflow to run every hour, use the following command,
-
-```text
-$ bodywork cronjob create \
-    --namespace=bodywork-batch-jobs \
-    --name=score-data \
-    --schedule="0 * * * *" \
-    --git-repo-url=https://github.com/bodywork-ml/bodywork-batch-job-project \
-    --git-repo-branch=master \
-    --retries=2
-```
-
-Each scheduled workflow will attempt to re-run the batch-job, as defined by the state of this repository's `master` branch at the time of execution.
-
-To get the execution history for all `score-data` jobs use,
-
-```text
-$ bodywork cronjob history \
-    --namespace=bodywork-batch-jobs \
-    --name=score-data
+$ bw get cronjob "hourly" --history
 ```
 
 Which should return output along the lines of,
 
 ```text
-JOB_NAME                                START_TIME                    COMPLETION_TIME               ACTIVE      SUCCEEDED       FAILED
-score-data-1605214260                   2020-11-12 20:51:04+00:00     2020-11-12 20:52:34+00:00     0           1               0
+           run ID = hourly-1645446900
+┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Field           ┃ Value                     ┃
+┡━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ start_time      │ 2022-02-21 12:35:06+00:00 │
+│ completion_time │ 2022-02-21 12:39:32+01:03 │
+│ active          │ False                     │
+│ succeeded       │ True                      │
+│ failed          │ False                     │
+└─────────────────┴───────────────────────────┘
 ```
 
 Then to stream the logs from any given cronjob run (e.g. to debug and/or monitor for errors), use,
 
 ```text
-$ bodywork cronjob logs \
-    --namespace=bodywork-batch-jobs \
-    --name=score-data-1605214260
-```
-
-## Cleaning Up
-
-To clean-up the deployment in its entirety, delete the namespace using kubectl - e.g. by running,
-
-```text
-$ kubectl delete ns bodywork-batch-jobs
+$ bw get cronjobs hourly --logs "hourly-1645446900"
 ```

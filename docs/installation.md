@@ -1,6 +1,6 @@
 # Installing Bodywork
 
-Bodywork is distributed as a Python package that exposes a Command Line Interface (CLI) for interacting with your Kubernetes cluster. The Bodywork CLI configures your cluster to run [pre-built Bodywork containers](https://hub.docker.com/repository/docker/bodyworkml/bodywork-core), that clone your project from its remote Git repository and then deploy it.
+Bodywork is a command line tool, developed in Python. It is distributed as a Python package that exposes a Command Line Interface (CLI) for interacting with your Kubernetes cluster.
 
 Bodywork can be downloaded and installed from PyPI with the following shell command,
 
@@ -17,20 +17,44 @@ $ pip install git+https://github.com/bodywork-ml/bodywork-core.git
 Check that the installation has worked by running,
 
 ```text
-$ bodywork
+$ bodywork --help
 ```
 
 Which should display the following,
 
 ```text
-Deploy machine learning projects developed in Python, to k8s.
---> see bodywork -h for help
+Usage: bodywork [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --install-completion [bash|zsh|fish|powershell|pwsh]
+                                  Install completion for the specified shell.
+  --show-completion [bash|zsh|fish|powershell|pwsh]
+                                  Show completion for the specified shell, to
+                                  copy it or customize the installation.
+  --help                          Show this message and exit.
+
+Commands:
+  configure-cluster
+  create
+  delete
+  get
+  update
+  validate
+  version
 ```
+
+Note, that any Bodywork CLI command can be executed using `bodywork` or the command alias `bw` - i.e., issuing,
+
+```text
+$ bw --help
+```
+
+Is identical to the above version.
 
 ## Required Python Version
 
-Bodywork has been built and tested using Python 3.8. We recommend that Bodywork-compatible ML projects should also be developed and tested using Python 3.8, but in-practice your code is likely to work with other versions.
+Bodywork is developed and tested using Python 3.9. We recommend that your pipelines are also developed and tested using Python 3.9.
 
-## Required Operating System
+## Required operating System
 
 The Bodywork CLI has been developed for MacOS, Linux and Windows operating systems.
