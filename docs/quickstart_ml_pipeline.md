@@ -312,7 +312,7 @@ Services are accessible via the public internet if you have [installed an ingres
 Assuming that you are setup to access services from outside the cluster, then you can test the endpoint using,
 
 ```text
-$ curl http://YOUR_CLUSTERS_EXTERNAL_IP/bodywork-ml-pipeline-project/stage-1-scoring-service/iris/v1/score \
+$ curl http://YOUR_CLUSTERS_EXTERNAL_IP/bodywork-ml-pipeline-project/stage-2-scoring-service/iris/v1/score \
     --request POST \
     --header "Content-Type: application/json" \
     --data '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
