@@ -24,7 +24,7 @@ Once you have Minikube installed, start a cluster using the latest version of Ku
 $ minikube start --kubernetes-version=v1.22.6 --addons=ingress
 ```
 
-You’ll need the cluster’s IP address for testing services created by your ML pipelines. You can find this using,
+High-level cluster information can be found using,
 
 ```text
 $ minikube profile list
@@ -32,30 +32,38 @@ $ minikube profile list
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 | Profile  | VM Driver | Runtime |      IP      | Port | Version  | Status  | Nodes |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
-| minikube | hyperkit  | docker  | 192.168.64.5 | 8443 | v1.22.6  | Running |     1 |
+| minikube | docker    | docker  | 192.168.64.5 | 8443 | v1.22.6  | Running |     1 |
 |----------|-----------|---------|--------------|------|----------|---------|-------|
 ```
-
-An alternative to accessing the cluster at it's IP address, is to open a new terminal and run,
-
-```text
-$ minikube tunnel
-```
-
-Which will enable you to access the cluster at `127.0.0.1` (localhost).
-
-You also can monitor Kubernetes resources and read logs via the [Kubernetes dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/), that can be accessed using,
-
-```text
-$ minikube dashboard
-```
-
-And will open the dashboard in your browser.
 
 When you’re done, the cluster can be powered-down using.
 
 ```text
 $ minikube stop
+```
+
+### Accessing Services
+
+The most robust method for getting a URL to use as a gateway for accessing services deployed by Bodywork, is by opening a new terminal and running,
+
+```text
+$ minikube service ingress-nginx-controller --namespace ingress-nginx --url
+```
+
+An alternative option is to open a new terminal and instead run,
+
+```text
+$ minikube tunnel
+```
+
+This will also enable you to access services using `127.0.0.1` (localhost) as a gateway URL to your cluster, but you will be prompted to enter your user password after these services have been deployed, so you will need to keep an eye on the terminal output for this.
+
+### Monitoring Resources
+
+You can monitor Kubernetes resources and read logs via the [Kubernetes dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/). You can get get a URL to the dashboard by running,
+
+```text
+$ minikube dashboard --url=true
 ```
 
 ## Supported Kubernetes Versions
