@@ -53,27 +53,27 @@ stages:
   stage_1_train_model:
     executable_module_path: pipeline/train_model.py
     requirements:
-      - boto3==1.16.15
-      - joblib==0.17.0
-      - pandas==1.1.4
-      - scikit-learn==0.23.2
+      - boto3==1.21.14
+      - joblib==1.1.0
+      - pandas==1.4.1
+      - scikit-learn==1.0.2
     cpu_request: 0.5
     memory_request_mb: 100
     batch:
-      max_completion_time_seconds: 30
+      max_completion_time_seconds: 60
       retries: 2
 
   stage_2_scoring_service:
     executable_module_path: pipeline/serve_model.py
     requirements:
-      - Flask==1.1.2
-      - joblib==0.17.0
-      - numpy==1.19.4
-      - scikit-learn==0.23.2
+      - flask==2.1.2
+      - joblib==1.1.0
+      - numpy==1.22.3
+      - scikit-learn==1.0.2
     cpu_request: 0.25
     memory_request_mb: 100
     service:
-      max_startup_time_seconds: 30
+      max_startup_time_seconds: 60
       replicas: 2
       port: 5000
       ingress: true
@@ -153,14 +153,14 @@ Finally, the remaining parameters in `stages.stage_1_train_model` section of `bo
 stage_1_train_model:
   executable_module_path: stage_1_train_model/train_model.py
   requirements:
-    - boto3==1.16.15
-    - joblib==0.17.0
-    - pandas==1.1.4
-    - scikit-learn==0.23.2
+    - boto3==1.21.14
+    - joblib==1.1.0
+    - pandas==1.4.1
+    - scikit-learn==1.0.2
   cpu_request: 0.5
   memory_request_mb: 100
   batch:
-    max_completion_time_seconds: 30
+    max_completion_time_seconds: 60
     retries: 2
 ```
 
@@ -171,7 +171,7 @@ From which it is clear to see that we have specified that this stage is a batch 
 The `stages.stage_2_scoring_service.executable_module_path` parameter points to the executable Python module - `serve_model.py` - that defines what will happen when the `stage_2_scoring_service` (service) stage is executed, within a pre-built Bodywork container. This module contains the code required to:
 
 1. load the model trained in `stage_1_train_model` and persisted to cloud storage; and,
-2. start a Flask service to score instances (or rows) of data, sent as JSON to the API endpoing.
+2. start a Flask service to score instances (or rows) of data, sent as JSON to the API endpoint.
 
 We chose to develop the prediction service using [Flask](https://flask.palletsprojects.com/en/1.1.x/), but this is **not** a requirement in any way and you are free to use any frameworks you like - e.g., [FastAPI](https://fastapi.tiangolo.com).
 
@@ -219,10 +219,10 @@ We recommend that you spend five minutes familiarising yourself with the full co
 The `stages.stage_2_scoring_service.requirements` parameter in the `bodywork.yaml` file lists the 3rd party Python packages that will be Pip-installed on the pre-built Bodywork container, as required to run the `serve_model.py` module. In this example we have,
 
 ```text
-Flask==1.1.2
-joblib==0.17.0
-numpy==1.19.4
-scikit-learn==0.23.2
+flask==2.1.2
+joblib==1.1.0
+numpy==1.22.3
+scikit-learn==1.0.2
 ```
 
 * `Flask` - the framework upon which the REST API server is built;
@@ -235,10 +235,10 @@ Finally, the remaining parameters in `stages.stage_2_scoring_service` section of
 stage_2_scoring_service:
   executable_module_path: stage_2_scoring_service/serve_model.py
   requirements:
-    - Flask==1.1.2
-    - joblib==0.17.0
-    - numpy==1.19.4
-    - scikit-learn==0.23.2
+    - flask==2.1.2
+    - joblib==1.1.0
+    - numpy==1.22.3
+    - scikit-learn==1.0.2
   cpu_request: 0.25
   memory_request_mb: 100
   service:
@@ -307,7 +307,7 @@ $ bw get deployment "bodywork-ml-pipeline-project" "stage-2-scoring-service"
 └──────────────────────┴───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Services are accessible via the public internet if you have [installed an ingress controller](kubernetes.md#installing-nginx) within your cluster, and have set the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) to `true`. If you are using Kubernetes via Minikube and our [Kuberentes Quickstart](kubernetes.md#quickstart) guide, then this will have been enabled for you. Otherwise, services will only be accessible via HTTP from **within** the cluster, via the `service_url`.
+Services are accessible via the public internet if you have [installed an ingress controller](kubernetes.md#installing-nginx) within your cluster, and the `stages.STAGE_NAME.service.ingress` [configuration parameter](#service-deployment-stages) is set to `true`. If you are using Kubernetes via Minikube and our [Kuberentes Quickstart](kubernetes.md#quickstart) guide, then this will have been enabled for you. Otherwise, services will only be accessible via HTTP from **within** the cluster, via the `service_url`.
 
 Assuming that you are setup to access services from outside the cluster, then you can test the endpoint using,
 
@@ -318,7 +318,7 @@ $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/bodywork-ml-pipeline-project/stage-2-sco
     --data '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
 ```
 
-See [here](kubernetes.md#connecting-to-the-cluster) for instruction on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP`. This ought to return,
+See [here](kubernetes.md#accessing-services) for instructions on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP` if you are using Minikube, otherwise refer to the instructions [here](kubernetes.md#connecting-to-the-cluster). This request ought to return,
 
 ```json
 {

@@ -46,14 +46,14 @@ stages:
   score_data:
     executable_module_path: score_data/score.py
     requirements:
-      - boto3==1.16.15
-      - joblib==0.17.0
-      - pandas==1.1.4
-      - scikit-learn==0.23.2
+      - boto3==1.21.14
+      - joblib==1.1.0
+      - pandas==1.4.1
+      - scikit-learn==1.0.2
     cpu_request: 0.5
     memory_request_mb: 100
     batch:
-      max_completion_time_seconds: 30
+      max_completion_time_seconds: 60
       retries: 2
 
 logging:
@@ -109,10 +109,10 @@ And so everything defined in `main()` will be executed.
 The `stages.score_data.requirements` parameter in `bodywork.yaml` lists the 3rd party Python packages that will be Pip-installed on the container, as required to run the `score.py` module. In this example we have,
 
 ```text
-boto3==1.16.15
-joblib==0.17.0
-pandas==1.1.4
-scikit-learn==0.23.2
+boto3==1.21.14
+joblib==1.1.0
+pandas==1.4.1
+scikit-learn==1.0.2
 ```
 
 * `boto3` - for interacting with AWS;
@@ -127,14 +127,14 @@ stages:
   score_data:
     executable_module_path: score_data/score.py
     requirements:
-      - boto3==1.16.15
-      - joblib==0.17.0
-      - pandas==1.1.4
-      - scikit-learn==0.23.2
+      - boto3==1.21.14
+      - joblib==1.1.0
+      - pandas==1.4.1
+      - scikit-learn==1.0.2
     cpu_request: 0.5
     memory_request_mb: 100
     batch:
-      max_completion_time_seconds: 30
+      max_completion_time_seconds: 60
       retries: 2
 ```
 
