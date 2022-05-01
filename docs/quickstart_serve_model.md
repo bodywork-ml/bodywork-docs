@@ -221,7 +221,7 @@ $ curl http://YOUR_CLUSTERS_EXTERNAL_IP/bodywork-serve-model-project/scoring-ser
     --data '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
 ```
 
-See [here](kubernetes.md#accessing-services) for instructions on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP` if you are using Minikube, otherwise refer to the instructions [here](kubernetes.md#connecting-to-the-cluster). This ought to return,
+See [here](kubernetes.md#accessing-services) for instructions on how to retrieve `YOUR_CLUSTERS_EXTERNAL_IP` if you are using Minikube, otherwise refer to the instructions [here](kubernetes.md#connecting-to-the-cluster). This request ought to return,
 
 
 ```json
