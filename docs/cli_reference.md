@@ -198,7 +198,6 @@ $ bodywork delete secret SECRET_NAME \
 `SECRET_NAME`
 : (optional) The name of the secret to delete.
 
-
 `SECRET_GROUP`
 : The secret group - e.g, `dev-environment` - to look in. If `SECRET_NAME` is not specified, then this delete the entire group and all of the secrets within it.
 
