@@ -346,9 +346,8 @@ The optional `--check-files` flag will check that all `executable_module_path` p
 Secret credentials will be required whenever you wish to pull data or persist models to cloud storage, or access private APIs from within a stage. We provide a secure mechanism for dynamically injecting secret credentials as environment variables into the container running a stage. Before a stage can be configured to inject a secret into its host container, the secret has to be created within the Kubernetes cluster. This is achieved from the CLI,
 
 ```text
-$ bw create secret \
+$ bw create secret "cloud-storage-credentials" \
     --group "dev" \
-    --name "cloud-storage-credentials" \
     --data "USERNAME=bodywork" "PASSWORD=bodywork123!"
 ```
 

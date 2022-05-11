@@ -69,8 +69,8 @@ Deploy a pipeline to Kubernetes.
 `--retries`
 : The number of times to retry the deployment, should any stage fail.
 
-`--ssh-key-path`
-: If the Git repo is private, then use the SSH key at this location to enable access. Automatically creates a secret for this purpose.
+`--ssh`
+: If the Git repo is private, then provide a path to a valid SSH key file to enable access - e.g., `~/.ssh/id_rsa`. Automatically creates a secret for this purpose.
 
 ### Get Deployments
 
@@ -152,20 +152,20 @@ Secret groups will be created automatically if they do not already exist.
 ### Get Secrets
 
 ```text
-$ bodywork get secrets \
+$ bodywork get secret SECRET_NAME \
     --group SECRETS_GROUP \
-    --name SECRET_NAME
 ```
 
-If none of the options are specified, then `bodywork get secrets` will return a list of all secrets.
+If none of the arguments or options are specified, then `bodywork get secrets` will return a list of all secrets.
 
-**Options:**
+**Arguments:**
 
-`--group`
-: The secret group - e.g, `dev-environment` - to look in. If `--name` is not specified, then this will return a list of all secrets in the group.
+`SECRET_NAME`
+: (optional) The name of the secret. Provide this to print the secret to stdout.
 
-`--name`
-: Prints the full details for a single secret within a group.
+`SECRETS_GROUP`
+: The secret group - e.g, `dev-environment` - to look in. If `SECRET_NAME` is not specified, then this will return a list of all secrets in the group.
+
 
 ### Update Secrets
 
@@ -189,20 +189,18 @@ $ bodywork update secret SECRET_NAME \
 ### Delete Secrets
 
 ```text
-$ bodywork delete secret \
-    --group SECRET_GROUP \
-    --name SECRET_NAME
+$ bodywork delete secret SECRET_NAME \
+    --group SECRET_GROUP 
 ```
 
 **Arguments:**
 
-`SECRETS_GROUP`
-: The secret group - e.g., `dev-environment`. If no `--name` is specified, then all secrets within the group will be deleted.
+`SECRET_NAME`
+: (optional) The name of the secret to delete.
 
-**Options:**
 
-`--name`
-: If specified, will delete only the named secret in the group.
+`SECRET_GROUP`
+: The secret group - e.g, `dev-environment` - to look in. If `SECRET_NAME` is not specified, then this delete the entire group and all of the secrets within it.
 
 ---
 
