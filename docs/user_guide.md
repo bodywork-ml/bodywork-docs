@@ -2,6 +2,14 @@
 
 This is a comprehensive guide to deploying a ML pipelines to Kubernetes. It assumes that you understand the [key concepts](key_concepts.md) that Bodywork is built upon and that you have worked through one of the [Quickstart Tutorials](quickstart_ml_pipeline.md).
 
+## Before we get Started
+
+Startup a [Kubernetes cluster](kubernetes.md#quickstart) and configure it for use with Bodywork,
+
+```text
+$ bw configure-cluster
+```
+
 ## Structuring a ML Pipeline Project
 
 Bodywork does not impose constraints on how you structure or develop your pipelines. So long as each stage in a pipeline can be linked to an executable Python module (or Jupyter notebook), then all Bodywork requires is configuration data contained within a file called `bodywork.yaml`. This [YAML](https://yaml.org) file describes how Bodywork should deploy the pipeline and will be the main focus of this user guide.

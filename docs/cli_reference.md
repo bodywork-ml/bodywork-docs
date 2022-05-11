@@ -37,7 +37,10 @@ Returns a list of configuration file errors.
 $ bodywork configure-cluster
 ```
 
-Prepare your Kubernetes cluster for use with Bodywork. Creates a dedicated Bodywork namespace, together with service accounts and roles for managing pipeline orchestration.
+Prepare your Kubernetes cluster for use with Bodywork. Creates a dedicated Bodywork namespace, together with service accounts and roles for managing pipeline orchestration. 
+
+!!! warning "Run this command before you try to run any others"
+    This only needs to be done once per-cluster. It will also be triggered automatically if you try and create deployment without it, but if you try to do anything else you will be met with errors.
 
 ---
 
