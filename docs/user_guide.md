@@ -247,7 +247,7 @@ stages:
 Where:
 
 `max_completion_time_seconds`
-: Time to wait for the given task to run, before retrying or raising a workflow execution error.
+: Time to wait for the given task to run, before retrying or raising a workflow execution error. This must account for the time required to install all of the dependencies using Pip, that could take longer than it does on your local machine. If stages are timing-out early, then try increasing this value. This won't impact the overall time taken by the workflow, which will progress as soon as a stage is completed.
 
 `retries`
 : Number of times to retry executing a failed stage, before raising a workflow execution error.
@@ -270,7 +270,7 @@ stages:
 Where:
 
 `max_startup_time_seconds`
-: Time to wait for the service to be 'ready' without any errors having occurred. When the service reaches the time limit without raising errors, then it will be marked as 'successful'. If a service deployment stage fails to be successful, then the deployment will be automatically rolled-back to the previous version.
+: Time to wait for the service to be 'ready' and reachable. This must also account for the time required to install all of the dependencies using Pip, that could take longer than it does on your local machine. If stages are timing-out early, then try increasing this value. This won't impact the overall time taken by the workflow, that will progress as soon as a stage is completed. If a service deployment stage fails to be 'ready' when this time expires, then the deployment will be automatically rolled-back to the previous version.
 
 `replicas`
 : Number of independent containers running the service defined in `flask_prediction_api.py`. The service endpoint will automatically route requests to each replica in-turn, to spread the load evenly.
