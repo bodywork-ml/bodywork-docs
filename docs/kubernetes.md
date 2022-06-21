@@ -21,8 +21,10 @@ If you’re running on Windows or Linux, then follow the [recommended installati
 Once you have Minikube installed, start a cluster using the latest version of Kubernetes that Bodywork supports,
 
 ```text
-$ minikube start --kubernetes-version=v1.22.6 --addons=ingress
+$ minikube start --kubernetes-version=v1.22.6 --addons=ingress --cpus=4 --memory=8g
 ```
+
+Where you should tune cpu and memory to your machines' available resources.
 
 High-level cluster information can be found using,
 
@@ -44,19 +46,29 @@ $ minikube stop
 
 ### Accessing Services
 
-The most robust method for getting a URL to use as a gateway for accessing services deployed by Bodywork, is by opening a new terminal and running,
+The most robust method for establishing a route to your cluster is by opening a new terminal and running,
+
+```text
+$ minikube kubectl -- -n ingress-nginx port-forward service/ingress-nginx-controller 8080:80
+```
+
+This will forward traffic from `http://localhost:8080` directly to the cluster's ingress controller, that mediates access to the services deployed by Bodywork. In this scenario `localhost:8080` becomes the cluster IP address to use when testing locally.
+
+An alternative option for retrieving a URL to use as a cluster IP for accessing services, is via,
 
 ```text
 $ minikube service ingress-nginx-controller --namespace ingress-nginx --url
 ```
 
-An alternative option is to open a new terminal and instead run,
+Yet another option is to open a new terminal and instead run,
 
 ```text
 $ minikube tunnel
 ```
 
-This will also enable you to access services using `127.0.0.1` (localhost) as a gateway URL to your cluster, but you will be prompted to enter your user password after these services have been deployed, so you will need to keep an eye on the terminal output for this.
+This will also enable you to access services using `localhost` (i.e., `127.0.0.1`) as a gateway URL to your cluster, but you will be prompted to enter your user password after these services have been deployed, so you will need to keep an eye on the terminal output for this.
+
+See the official [Minikube documentation on accessing apps](https://minikube.sigs.k8s.io/docs/handbook/accessing/) for more information.
 
 ### Monitoring Resources
 
