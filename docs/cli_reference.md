@@ -54,7 +54,7 @@ Orchestrate stages on Kubernetes that run ML workloads and start ML services.
 $ bodywork create deployment GIT_REPO_URL
 ```
 
-Deploy a pipeline to Kubernetes.
+Deploy a pipeline to Kubernetes. Press `CTRL + C` to gracefully terminate deployments before they have finished.
 
 **Arguments:**
 
@@ -94,7 +94,7 @@ Get information on pipelines and the service created by them. If no options are 
 $ bodywork update deployment GIT_REPO_URL
 ```
 
-Redeploy a pipeline to Kubernetes.
+Redeploy a pipeline to Kubernetes. Press `CTRL + C` to gracefully terminate deployments before they have finished.
 
 **Arguments:**
 
