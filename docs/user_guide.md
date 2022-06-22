@@ -409,6 +409,10 @@ Assuming that the private key used to setup SSH access with GitHub is located at
 
 Note, that if you wanted to deploy a pipeline from a branch other than the default branch, you can set this using the `--branch` option.
 
+### Stopping a Pipeline
+
+If you need to terminate a pipeline before it has finished executing, then you can do so gracefully by pressing `CTRL + C` in the terminal running Bodywork. This will immediately stop all running batch stages, roll-back any service deployments that are in progress, and return stage logs back to the terminal.
+
 ### Testing Services
 
 The details of any serviced associated with the pipeline, can be retrieved using,
