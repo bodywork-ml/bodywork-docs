@@ -6,6 +6,10 @@
 
 Bodywork is a command line tool that deploys machine learning pipelines to [Kubernetes](https://en.wikipedia.org/wiki/Kubernetes). It takes care of everything to do with containers and orchestration, so that you don't have to.
 
+<div align="center">
+<script id="asciicast-6h4eDUPVK7iIWvuyacfHWizPv" src="https://asciinema.org/a/6h4eDUPVK7iIWvuyacfHWizPv.js" async data-autoplay="true" data-loop="0" data-speed="4"></script>
+</div>
+
 ## Who is this for?
 
 Bodywork is aimed at teams who want a solution for running ML pipelines and deploying models to Kubernetes. It is a lightweight and simpler alternative to [Kubeflow](https://www.kubeflow.org), or to building your own platform based around a workflow orchestration tool like [Apache Airflow](https://airflow.apache.org), [Argo Workflows](https://argoproj.github.io/workflows/) or [Dagster](https://www.dagster.io).
