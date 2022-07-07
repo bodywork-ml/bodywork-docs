@@ -80,7 +80,7 @@ $ minikube dashboard --url=true
 
 ## Supported Kubernetes Versions
 
-Bodywork relies on the official [Kubernetes Python client](https://github.com/kubernetes-client/python), whose latest version (22.6.0) supports Kubernetes v1.22 and below. We recommend that you use a version of Kubernetes that is between v1.19 and v1.22. More information can be found [here](https://github.com/kubernetes-client/python#compatibility).
+Bodywork currently supports Kubernetes v1.22 and below. We recommend that you use a version of Kubernetes that is between v1.19 and v1.22.
 
 ## Managed Kubernetes Services
 
